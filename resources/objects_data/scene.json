@@ -1,0 +1,62 @@
+{
+	"object_array" : [
+		{
+			"path" : "../resources/objects_data/box_data.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader.glsl",
+			"position" : [-5.0, 0.0, -5.0]
+		},
+		{
+			"path" : "../resources/objects_data/box_data.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader.glsl",
+			"position" : [0.0, 0.0, 4.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0
+		},
+		{
+			"path" : "../resources/objects_data/box_data.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader.glsl",
+			"position" : [1.0, 1.0, 4.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0
+		},
+		{
+			"path" : "../resources/objects_data/plane_data.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader.glsl",
+			"position" : [0.0, -1.0, 0.0]
+		},
+		{
+			"path" : "../resources/Medieval tower/Medieval tower_mid.obj",
+			"vertex_shader" : "../src/shader/1.model_loading.vs",
+			"fragment_shader" : "../src/shader/1.model_loading.fs",
+			"position" : [-10.0, -1.0, -1.0],
+			"quantity": 3,
+			"step" : [10.0, 0.0, 0.0],
+			"scale": 0.5
+		},
+		{
+			"path" : "../resources/objects_data/transparent_plane_data.json",
+			"vertex_shader" : "../src/shader/1.blending.vs",
+			"fragment_shader" : "../src/shader/1.blending.fs",
+			"position" : [-5.0, 0.0, 5.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0
+		},
+		{
+			"path" : "../resources/objects_data/grass_data.json",
+			"vertex_shader" : "../src/shader/1.blending.vs",
+			"fragment_shader" : "../src/shader/1.blending.fs",
+			"position" : [-5.0, -0.5, 2.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0
+		}
+		
+	]
+}

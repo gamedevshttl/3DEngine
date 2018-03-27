@@ -1,0 +1,103 @@
+cmake_minimum_required(VERSION 2.8)
+
+project(main)
+
+find_package(OpenGL REQUIRED)
+
+include_directories(
+	external/glfw/include
+	external/glew-1.13.0/include
+	external/glm-0.9.8.5
+	external/assimp-3.3.1/include
+	external/rapidjson/include
+	)
+
+set(GLEW_SOURCES external/glew-1.13.0/src/glew.c)
+
+add_library(GLEW_1130 STATIC ${GLEW_SOURCES})
+	
+set (SOURCES_CODE 
+		src/main.cpp
+		src/shader_logic.h
+		src/shader_logic.cpp
+		src/texture_logic.h
+		src/texture_logic.cpp
+		src/camera.h
+		src/camera.cpp
+		src/scene.h
+		src/scene.cpp
+		src/box.h
+		src/box.cpp		
+		src/object/mesh.h
+		src/object/mesh.cpp
+		src/object/model.h
+		src/object/model.cpp
+		src/object/object.h
+		src/object/object.cpp
+		src/object/json_object.h
+		src/object/json_object.cpp
+		src/object/factory_object.h
+		src/object/factory_object.cpp
+		src/object/resources_manager.h
+		src/object/resources_manager.cpp
+		src/light.h
+		src/light.cpp		
+		src/shader/fragment_shader.glsl
+		src/shader/vertex_shader.glsl
+		src/shader/fragment_ligth_shader.glsl
+		src/shader/vertex_light_shader.glsl
+		src/shader/box_vertex_shader.glsl
+		src/shader/box_fragment_shader.glsl
+		src/shader/1.model_loading.fs
+		src/shader/1.model_loading.vs
+		src/shader/border_color.fs
+		src/shader/1.blending.fs
+		src/shader/1.blending.vs
+		src/shader/1.framebuffers_screen.fs
+		src/shader/1.framebuffers_screen.vs
+		src/shader/5.1.framebuffers.fs
+		src/shader/5.1.framebuffers.vs
+	)
+
+add_executable(main ${SOURCES_CODE})
+
+add_subdirectory(external/glfw)
+add_subdirectory(external/assimp-3.3.1)
+add_subdirectory(external/rapidjson)
+
+source_group(	shaders FILES 
+				src/shader/fragment_shader.glsl
+				src/shader/vertex_shader.glsl
+				src/shader/fragment_ligth_shader.glsl
+				src/shader/vertex_light_shader.glsl
+				src/shader/box_vertex_shader.glsl
+				src/shader/box_fragment_shader.glsl
+				src/shader/1.model_loading.fs
+				src/shader/1.model_loading.vs
+				src/shader/border_color.fs
+				src/shader/1.blending.fs
+				src/shader/1.blending.vs
+				src/shader/1.framebuffers_screen.fs
+				src/shader/1.framebuffers_screen.vs
+				src/shader/5.1.framebuffers.fs
+				src/shader/5.1.framebuffers.vs
+			)
+			
+source_group(	object FILES
+				src/object/mesh.h
+				src/object/mesh.cpp
+				src/object/model.h
+				src/object/model.cpp
+				src/object/object.h
+				src/object/object.cpp
+				src/object/json_object.h
+				src/object/json_object.cpp
+				src/object/factory_object.h
+				src/object/factory_object.cpp
+				src/object/resources_manager.h
+				src/object/resources_manager.cpp
+			)
+
+target_link_libraries(main glfw assimp GLEW_1130 ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} ${CMAKE_DL_LIBS})
+
+
