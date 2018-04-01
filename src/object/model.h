@@ -6,7 +6,7 @@ class model : public object
 {
 public:	
 	//virtual void init(const std::string& path, shader_logic& shader);
-	virtual void init(const std::string& path, shader_logic& shader, const details_object& details_obj = details_object());
+	virtual void init(const std::string& path, shader_logic& shader);
 	//void set_position(const glm::vec3& position);
 	//void set_rotation(float angle, const glm::vec3& vec);
 

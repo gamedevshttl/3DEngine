@@ -1,21 +1,19 @@
 #include "json_object.h"
 #include "../texture_logic.h"
-#include "resources_manager.h"
 
 #include "rapidjson/document.h"
 
 #include <fstream>
 #include <iostream>
-#include <algorithm>
 
-
+#include "resources_manager.h"
 
 json_object::~json_object()
 {
 	glDeleteVertexArrays(1, &m_VAO);
 }
 
-void json_object::init(const std::string& path, shader_logic& shader, const details_object& details_obj)
+void json_object::init(const std::string& path, shader_logic& shader)
 {	
 	set_uniform_data(shader);
 
@@ -86,40 +84,10 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 			texture_item.m_path = document[elem.c_str()].GetString();
 			texture_item.m_type = elem;
 
-			if(texture_item.m_type == "cube_texture_reflect")
-				load_cube_texture_reflect(texture_item);
-			else
-				load_texture(texture_item);
+			load_texture(texture_item);
 		}
 	}
 	
-	for (const auto& elem : details_obj.m_textures)
-	{
-		texture texture_item = elem;
-
-		auto texture_it = std::find_if(m_textures.begin(), m_textures.end(), [texture_item](const texture& exists_texture) {return exists_texture.m_type == texture_item.m_type; });
-
-		if (texture_it == m_textures.end()) {
-			if (elem.m_type == "cube_texture_reflect")
-				load_cube_texture_reflect(texture_item);
-			else
-				load_texture(texture_item);
-		}
-	}
-
-	//if (!details_obj.m_reflect_cube_texture.empty()) {
-	//	std::vector<std::string> faces = {
-	//		details_obj.m_reflect_cube_texture + "right.jpg",
-	//		details_obj.m_reflect_cube_texture + "left.jpg",
-	//		details_obj.m_reflect_cube_texture + "top.jpg",
-	//		details_obj.m_reflect_cube_texture + "bottom.jpg",
-	//		details_obj.m_reflect_cube_texture + "front.jpg",
-	//		details_obj.m_reflect_cube_texture + "back.jpg",
-	//	};
-	//}
-
-	//load_reflect_cube_texture
-
 	glGenVertexArrays(1, &m_VAO);
 
 	GLuint VBO;
@@ -156,6 +124,8 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 
 void json_object::load_texture(texture& texture_item)
 {
+	texture_logic txtr_logic;
+
 	if (!texture_item.m_path.empty()) {
 		auto it_texture = resources_manager::instance().get_texture_map().find(texture_item.m_path);
 		if (it_texture != resources_manager::instance().get_texture_map().end()) {
@@ -163,35 +133,12 @@ void json_object::load_texture(texture& texture_item)
 			m_textures.push_back(texture_item);
 		}
 		else {
-			texture_item.m_id = texture_logic::instance().load_image(texture_item.m_path);
+			texture_item.m_id = txtr_logic.load_image(texture_item.m_path);
 			m_textures.push_back(texture_item);
 
 			resources_manager::instance().add_texture(texture_item.m_path, texture_item.m_id);
 		}
 	}
-}
-
-void json_object::load_cube_texture_reflect(texture& texture_item)
-{	
-	auto it_texture = resources_manager::instance().get_texture_map().find(texture_item.m_path);
-	if (it_texture != resources_manager::instance().get_texture_map().end()) {
-		texture_item.m_id = it_texture->second;
-		m_textures.push_back(texture_item);
-	}
-	else {
-		std::vector<std::string> faces = {
-			texture_item.m_path + "right.jpg",
-			texture_item.m_path + "left.jpg",
-			texture_item.m_path + "top.jpg",
-			texture_item.m_path + "bottom.jpg",
-			texture_item.m_path + "front.jpg",
-			texture_item.m_path + "back.jpg",
-		};
-
-		texture_item.m_id = texture_logic::instance().load_cube_map(faces);
-		m_textures.push_back(texture_item);
-		resources_manager::instance().add_texture(texture_item.m_path, texture_item.m_id);
-	}	
 }
 
 void json_object::draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos)
@@ -205,13 +152,11 @@ void json_object::draw(shader_logic& shader, const glm::mat4& projection, const 
 	for(GLuint i = 0; i<m_textures.size(); ++i){
 		glActiveTexture(GL_TEXTURE0 + i);				
 				
-		//if(m_textures[i].m_type == "texture_diffuse")
-		//	shader.set_int("material.diffuse", 0);
-		//else if(m_textures[i].m_type == "texture_specular")
-		//	shader.set_int("material.specular", 0);
+		if(m_textures[i].m_type == "texture_diffuse")
+			shader.set_int("material.diffuse", 0);
+		else if(m_textures[i].m_type == "texture_specular")
+			shader.set_int("material.specular", 0);
 		
-		shader.set_int("material." + m_textures[i].m_type, 0);
-
 		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
 	}
 
@@ -265,8 +210,6 @@ std::string json_object::load_file(const std::string& path)
 			file_content += "\n" + line;
 		}
 	}
-	stream.close();
-	stream.clear();
 
 	return file_content;
 }

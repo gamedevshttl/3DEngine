@@ -3,12 +3,10 @@
 
 #include <string>
 #include <memory>
-#include <vector>
 
 #include <glm/glm.hpp>
 
 #include "../shader_logic.h"
-
 
 
 struct vertex
@@ -25,24 +23,14 @@ struct texture
 	std::string m_path;
 };
 
-struct details_object
-{
-	//std::string m_diff_texture;
-	//std::string m_specular_texture;
-	//std::string m_reflect_texture;
-	//std::string m_reflect_cube_texture;
-	
-	std::vector<texture> m_textures;
-};
-
-class object//: public std::enable_shared_from_this<object>
+class object: public std::enable_shared_from_this<object>
 {
 public:
 	object()
 		: is_exists_noraml(false)
 	{}
-	
-	virtual void init(const std::string& path, shader_logic& shader, const details_object& details_obj = details_object()) {};
+
+	virtual void init(const std::string& path, shader_logic& shader) = 0;
 	virtual void set_position(const glm::vec3& position);
 	virtual void set_rotation(float angle, const glm::vec3& vec);
 	virtual void set_scale(float value);

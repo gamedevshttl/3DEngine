@@ -2,14 +2,13 @@
 #define __scene__
 
 #include "camera.h"
+//#include "camera_tutor.h"
 #include "shader_logic.h"
 #include "object\factory_object.h"
-#include "object\model.h"
-#include "skybox.h"
-#include "light.h"
-#include "post_processing.h"
 
 #include "box.h"
+#include "object\model.h"
+#include "light.h"
 
 #include <vector>
 #include <memory>
@@ -28,7 +27,9 @@ private:
 	void create_object();
 
 	GLFWwindow* m_window;
-	camera m_camera;	
+	camera m_camera;
+	//Camera tcamera;
+
 
 	glm::mat4 projection;
 	glm::mat4 view;
@@ -48,9 +49,11 @@ private:
 	GLuint m_texture_color_buffer;
 	shader_logic m_framebuffers_shader;
 
-	skybox m_skybox;
+	unsigned int m_cubeVAO, m_planeVAO;
+	shader_logic m_object_shader;
 
-	post_processing m_post_processing;
+	GLuint cubeTexture;
+	GLuint floorTexture;
 };
 
 #endif

@@ -5,7 +5,7 @@ in vec3 Normal;
 in vec2 TexCoords;
 
 struct Material{
-	sampler2D texture_diffuse;	
+	sampler2D diffuse;	
 	sampler2D specular;
 	float shinisess;
 	sampler2D emission;
@@ -27,9 +27,9 @@ vec3 CalcLightDir(DirLight light, vec3 normal, vec3 view_dir)
 //	vec3 reflect_dir = reflect(-light.direction, normal);
 //	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
 
-	vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse, TexCoords));
-	vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse, TexCoords));
-//	vec3 specular = light.specular * spec * vec3(texture(material.texture_diffuse, TexCoords));
+	vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+	vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
+//	vec3 specular = light.specular * spec * vec3(texture(material.diffuse, TexCoords));
 	
 	return ambient + diffuse;
 }
@@ -53,9 +53,9 @@ vec3 CalcPoitLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view_dir)
 	vec3 reflect_dir = reflect(-light_dir, normal);
 	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
 
-	vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse, TexCoords));
-	vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse, TexCoords));
-	vec3 specular = light.diffuse * spec * vec3(texture(material.texture_diffuse, TexCoords));
+	vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+	vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
+	vec3 specular = light.diffuse * spec * vec3(texture(material.diffuse, TexCoords));
 
 	return diffuse + specular;
 }
@@ -66,7 +66,7 @@ out vec4 frag_color;
 
 void main()
 {
-	//frag_color = texture(material.texture_diffuse, TexCoords);
+	//frag_color = texture(material.diffuse, TexCoords);
 	//frag_color = vec4(1.0, 0.0, 0.0, 1);
 
 	vec3 norm = normalize(Normal);
