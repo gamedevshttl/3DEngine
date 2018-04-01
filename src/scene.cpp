@@ -18,33 +18,10 @@
 const unsigned int scene_SCR_WIDTH = 1024;
 const unsigned int scene_SCR_HEIGHT = 768;
 //
-//float scene_lastX = (float)scene_SCR_WIDTH / 2.0;
-//float scene_lastY = (float)scene_SCR_HEIGHT / 2.0;
-//bool scene_firstMouse = true;
-//
-//// timing
-//float scene_deltaTime = 0.0f;
-//float scene_lastFrame = 0.0f;
 
 void scene::mouse_callback(double xpos, double ypos)
 {
 	m_camera.mouse_process(xpos, ypos);
-
-
-	//if (scene_firstMouse)
-	//{
-	//	scene_lastX = xpos;
-	//	scene_lastY = ypos;
-	//	scene_firstMouse = false;
-	//}
-
-	//float xoffset = xpos - scene_lastX;
-	//float yoffset = scene_lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-	//scene_lastX = xpos;
-	//scene_lastY = ypos;
-
-	//tcamera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -132,6 +109,7 @@ void scene::create_object()
 	//glFrontFace(GL_CCW);
 
 	m_post_processing.init();
+	m_skybox.init();
 
 	glEnable(GL_DEPTH_TEST);
 	//glDepthMask(GL_FALSE);
@@ -183,6 +161,8 @@ void scene::draw()
 			for (auto &object : elem_shader.second.m_vector_object) {
 				object->draw(*elem_shader.second.m_shader.get(), projection, view, view_pos);
 			}
+
+		m_skybox.draw(projection, view);
 
 		m_post_processing.draw();
 

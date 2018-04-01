@@ -2,7 +2,6 @@
 #define __scene__
 
 #include "camera.h"
-//#include "camera_tutor.h"
 #include "shader_logic.h"
 #include "object\factory_object.h"
 
@@ -10,6 +9,7 @@
 #include "object\model.h"
 #include "light.h"
 #include "post_processing.h"
+#include "skybox.h"
 
 #include <vector>
 #include <memory>
@@ -45,19 +45,8 @@ private:
 	std::vector<std::shared_ptr<object>> m_light_gebug_object_vector;
 	shader_logic m_debug_light_shader;
 
-	//GLuint m_framebuffer;
-	//GLuint m_quadVAO;
-	//GLuint m_texture_color_buffer;
-	//shader_logic m_framebuffers_shader;
-
-	//unsigned int m_cubeVAO, m_planeVAO;
-	//shader_logic m_object_shader;
-
-	//GLuint cubeTexture;
-	//GLuint floorTexture;
-
 	post_processing m_post_processing;
-
+	skybox m_skybox;
 };
 
 #endif
