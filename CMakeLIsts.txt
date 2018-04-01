@@ -42,6 +42,8 @@ set (SOURCES_CODE
 		src/object/resources_manager.cpp
 		src/light.h
 		src/light.cpp		
+		src/post_processing.h
+		src/post_processing.cpp
 		src/shader/fragment_shader.glsl
 		src/shader/vertex_shader.glsl
 		src/shader/fragment_ligth_shader.glsl
