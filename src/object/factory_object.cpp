@@ -59,6 +59,30 @@ void factory_object::parce_scene(const std::string& scene_path)
 
 		glm::vec3 step = read_vector(object_array[i], "step");
 
+		
+		details_object details_obj;
+		if (object_array[i].HasMember("details")) {			
+			const rapidjson::Value& details_value = object_array[i]["details"];
+
+			std::vector<std::string> texture_type_vector{"texture_diffuse", "texture_specular", "texture_reflect", "cube_texture_reflect"};
+
+			for (rapidjson::SizeType j = 0; j < details_value.Size(); ++j) {
+
+				for (const auto& elem : texture_type_vector) {
+
+					if (details_value[j].HasMember(elem.c_str())) {
+						texture texture_item;
+						texture_item.m_path = details_value[j][elem.c_str()].GetString();
+						if (!texture_item.m_path.empty()) {
+							texture_item.m_type = elem;
+							details_obj.m_textures.push_back(texture_item);
+						}
+					}
+				}
+			}
+		}
+		
+		
 		std::shared_ptr<object> obj;
 		std::shared_ptr<shader_logic> shader;
 
@@ -70,20 +94,31 @@ void factory_object::parce_scene(const std::string& scene_path)
 			auto it_local_shader = m_map_shader.insert(std::make_pair(vertex_shader + fragment_shader, shader_map_object(shader)));
 
 			if (it_local_shader.second)
-				obj = create_object(path, *it_local_shader.first->second.m_shader.get());
+				obj = create_object(path, *it_local_shader.first->second.m_shader.get(), details_obj);
 
 			if (obj) {
-				it_local_shader.first->second.m_map_object[path] = obj;				
+				std::string obj_key;
+				obj_key = path;
+				for (const auto& elem : details_obj.m_textures)
+					obj_key += elem.m_path;
+
+				it_local_shader.first->second.m_map_object[obj_key] = obj;
 			}
 		}
 		else {
 			shader = it_shader->second.m_shader;
 
-			auto it_obj = it_shader->second.m_map_object.find(path);
+			std::string obj_key;
+			obj_key = path;
+			for (const auto& elem : details_obj.m_textures)			
+				obj_key += elem.m_path;
+			
+
+			auto it_obj = it_shader->second.m_map_object.find(obj_key);
 			if (it_obj == it_shader->second.m_map_object.end()) {				
-				obj = create_object(path, *it_shader->second.m_shader.get());
+				obj = create_object(path, *it_shader->second.m_shader.get(), details_obj);
 				if (obj)
-					it_shader->second.m_map_object[path] = obj;
+					it_shader->second.m_map_object[obj_key] = obj;
 			}
 			else
 				obj = it_obj->second;
@@ -134,12 +169,12 @@ glm::vec3 factory_object::read_vector(const rapidjson::Value& value, const std::
 	return vector;
 }
 
-std::shared_ptr<object> factory_object::create_object(const std::string& object_name, shader_logic& shader)
+std::shared_ptr<object> factory_object::create_object(const std::string& object_name, shader_logic& shader, const details_object& details_obj)
 {
 	if (object_name.find(".json") != std::string::npos) {
 		std::shared_ptr<object> obj = std::make_shared<json_object>();
 		//obj->init("../resources/objects_data/plane_data.json", shader);
-		obj->init(object_name, shader);
+		obj->init(object_name, shader, details_obj);
 		return obj;
 	}
 	else if(object_name.find(".obj") != std::string::npos)

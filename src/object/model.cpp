@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-void model::init(const std::string& path, shader_logic& shader)
+void model::init(const std::string& path, shader_logic& shader, const details_object& details_obj)
 {
 	load_model(path);
 	m_model_matrix = glm::mat4(1.0f);
@@ -151,8 +151,7 @@ mesh model::process_mesh(aiMesh *ai_mesh, const aiScene *scene)
 	
 std::vector<texture> model::load_material_textures(aiMaterial *mat, aiTextureType type, std::string type_name)
 {
-	std::vector<texture> textures;
-	texture_logic txtr_logic;
+	std::vector<texture> textures;	
 
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i) {
 		aiString str;
@@ -170,7 +169,7 @@ std::vector<texture> model::load_material_textures(aiMaterial *mat, aiTextureTyp
 
 
 		texture texture_item;
-		texture_item.m_id = txtr_logic.load_image(m_directory + "/" + str.C_Str());
+		texture_item.m_id = texture_logic::instance().load_image(m_directory + "/" + str.C_Str());
 		texture_item.m_type = type_name;
 		texture_item.m_path = str.C_Str();
 

@@ -8,12 +8,13 @@ class json_object: public object
 {
 public:
 	virtual ~json_object();
-	virtual void init(const std::string& path, shader_logic& shader);
+	virtual void init(const std::string& path, shader_logic& shader, const details_object& details_obj = details_object());
 	virtual void draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos);
 	virtual void draw_cust_model_matrix(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos, const glm::mat4& model);
 	virtual std::shared_ptr<object> clone();
 
 	void load_texture(texture& texture_item);
+	void load_cube_texture_reflect(texture& texture_item);
 
 protected:
 	std::string load_file(const std::string& path);

@@ -41,7 +41,13 @@ set (SOURCES_CODE
 		src/object/resources_manager.h
 		src/object/resources_manager.cpp
 		src/light.h
-		src/light.cpp		
+		src/light.cpp	
+		src/post_processing.h
+		src/post_processing.cpp
+		src/utils.h
+		src/utils.cpp
+		src/skybox.h
+		src/skybox.cpp
 		src/shader/fragment_shader.glsl
 		src/shader/vertex_shader.glsl
 		src/shader/fragment_ligth_shader.glsl
@@ -57,6 +63,10 @@ set (SOURCES_CODE
 		src/shader/1.framebuffers_screen.vs
 		src/shader/5.1.framebuffers.fs
 		src/shader/5.1.framebuffers.vs
+		src/shader/1.skybox.fs
+		src/shader/1.skybox.vs
+		src/shader/1.reflect_skybox.fs
+		src/shader/1.reflect_skybox.vs		
 	)
 
 add_executable(main ${SOURCES_CODE})
@@ -81,8 +91,12 @@ source_group(	shaders FILES
 				src/shader/1.framebuffers_screen.vs
 				src/shader/5.1.framebuffers.fs
 				src/shader/5.1.framebuffers.vs
+				src/shader/1.skybox.fs
+				src/shader/1.skybox.vs
+				src/shader/1.reflect_skybox.fs
+				src/shader/1.reflect_skybox.vs
 			)
-			
+
 source_group(	object FILES
 				src/object/mesh.h
 				src/object/mesh.cpp

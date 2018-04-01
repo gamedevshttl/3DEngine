@@ -57,10 +57,9 @@ void box::init()
 	GLuint program_id = m_box_shader.load_shader("../src/shader/box_vertex_shader.glsl", "../src/shader/box_fragment_shader.glsl");
 	m_mvp_matrix_id = glGetUniformLocation(program_id, "mvp_matrix");
 	m_model_matrix_id = glGetUniformLocation(program_id, "model_matrix");
-
-	texture_logic txtr_logic;
-	m_diffuse_texture = txtr_logic.load_image("../resources/texture/container2.png");
-	m_specular_texture = txtr_logic.load_image("../resources/texture/container2_specular.png");
+	
+	m_diffuse_texture = texture_logic::instance().load_image("../resources/texture/container2.png");
+	m_specular_texture = texture_logic::instance().load_image("../resources/texture/container2_specular.png");
 
 	m_box_shader.use();
 	m_box_shader.set_int("material.diffuse", 0);
