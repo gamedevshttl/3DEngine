@@ -83,7 +83,7 @@ void scene::create_object()
 		m_debug_light_shader.load_shader("../src/shader/vertex_light_shader.glsl", "../src/shader/fragment_ligth_shader.glsl");
 
 		for (auto elem : m_light.get_point_light_vetor()) {
-			std::shared_ptr<object> light_gebug_object = factory.create_object("../resources/objects_data/box_data.json", m_debug_light_shader);
+			std::shared_ptr<object> light_gebug_object = factory.create_object("../resources/objects_data/box_data_cw.json", m_debug_light_shader);
 			light_gebug_object->set_position(elem.m_position);
 			m_light_gebug_object_vector.push_back(light_gebug_object);			
 		}
@@ -105,7 +105,7 @@ void scene::create_object()
 	projection = glm::perspective(glm::radians(45.0f), 1024.0f / 768.0f, 0.1f, 100.0f);
 	view = m_camera.get_view();	
 	
-	//glEnable(GL_CULL_FACE);	
+	glEnable(GL_CULL_FACE);	
 	//glFrontFace(GL_CCW);
 
 	m_post_processing.init();
