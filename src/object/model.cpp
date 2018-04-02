@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-void model::init(const std::string& path, shader_logic& shader)
+void model::init(const std::string& path, shader_logic& shader, const details_object& details_obj)
 {
 	load_model(path);
 	m_model_matrix = glm::mat4(1.0f);

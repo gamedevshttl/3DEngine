@@ -1,6 +1,6 @@
 #include "skybox.h"
 #include "texture_logic.h"
-
+#include "object\resources_manager.h"
 
 #include <vector>
 #include <string>
@@ -62,16 +62,25 @@ void skybox::init()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-	std::vector<std::string> faces = {
-		"../resources/texture/skybox/right.jpg",
-		"../resources/texture/skybox/left.jpg",
-		"../resources/texture/skybox/top.jpg",
-		"../resources/texture/skybox/bottom.jpg",
-		"../resources/texture/skybox/front.jpg",
-		"../resources/texture/skybox/back.jpg",
-	};
 
-	m_cubemap_texture_id = texture_logic::instance().load_cube_map(faces);
+	auto it_texture = resources_manager::instance().get_texture_map().find("../resources/texture/skybox/");
+	if (it_texture != resources_manager::instance().get_texture_map().end()) {
+		m_cubemap_texture_id = it_texture->second;
+	}
+	else {
+		std::vector<std::string> faces = {
+			"../resources/texture/skybox/right.jpg",
+			"../resources/texture/skybox/left.jpg",
+			"../resources/texture/skybox/top.jpg",
+			"../resources/texture/skybox/bottom.jpg",
+			"../resources/texture/skybox/front.jpg",
+			"../resources/texture/skybox/back.jpg",
+		};
+
+		m_cubemap_texture_id = texture_logic::instance().load_cube_map(faces);
+
+		resources_manager::instance().add_texture("../resources/texture/skybox/", m_cubemap_texture_id);
+	}
 
 	m_shader.load_shader("../src/shader/1.skybox.vs", "../src/shader/1.skybox.fs");
 	m_shader.use();

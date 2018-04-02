@@ -56,7 +56,25 @@
 			"quantity": 10,
 			"step" : [2.0, 0.0, 0.0],
 			"scale": 1.0
+		},
+		{
+			"path" : "../resources/objects_data/box_data.json",
+			"vertex_shader" : "../src/shader/1.reflect_skybox.vs",
+			"fragment_shader" : "../src/shader/1.reflect_skybox.fs",
+			"position" : [10.0, 10.0, 4.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":"../resources/texture/skybox/"
+				}
+			]
 		}
+
 		
 	]
 }

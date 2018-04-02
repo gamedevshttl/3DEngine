@@ -63,6 +63,8 @@ set (SOURCES_CODE
 		src/shader/5.1.framebuffers.vs
 		src/shader/1.skybox.fs
 		src/shader/1.skybox.vs
+		src/shader/1.reflect_skybox.fs
+		src/shader/1.reflect_skybox.vs
 	)
 
 add_executable(main ${SOURCES_CODE})
@@ -89,6 +91,8 @@ source_group(	shaders FILES
 				src/shader/5.1.framebuffers.vs
 				src/shader/1.skybox.fs
 				src/shader/1.skybox.vs
+				src/shader/1.reflect_skybox.fs
+				src/shader/1.reflect_skybox.vs
 			)
 			
 source_group(	object FILES
