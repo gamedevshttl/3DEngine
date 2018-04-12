@@ -4,8 +4,18 @@ in vec2 tex_coord;
 in vec3 frag_pos;
 in vec3 normal;
 
-uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_specular1;
+//uniform sampler2D texture_diffuse1;
+//uniform sampler2D texture_specular1;
+
+struct Material{
+	sampler2D texture_diffuse;	
+	sampler2D texture_specular;
+	float shinisess;
+	sampler2D emission;
+};
+uniform Material material;
+
+
 uniform vec3 viewPos;
 
 out vec4 frag_color;
@@ -25,9 +35,13 @@ vec3 CalcLightDir(DirLight light, vec3 normal, vec3 view_dir)
 	vec3 reflect_dir = reflect(-light.direction, normal);
 	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 8.0);
 
-	vec3 ambient = light.ambient * vec3(texture(texture_diffuse1, tex_coord));
-	vec3 difuse = light.diffuse * diff * vec3(texture(texture_diffuse1, tex_coord));
-	vec3 specular = light.specular * spec * vec3(texture(texture_specular1, tex_coord));
+//	vec3 ambient = light.ambient * vec3(texture(texture_diffuse1, tex_coord));
+//	vec3 difuse = light.diffuse * diff * vec3(texture(texture_diffuse1, tex_coord));
+//	vec3 specular = light.specular * spec * vec3(texture(texture_specular1, tex_coord));
+
+	vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse, tex_coord));
+	vec3 difuse = light.diffuse * diff * vec3(texture(material.texture_diffuse, tex_coord));
+	vec3 specular = light.specular * spec * vec3(texture(material.texture_specular, tex_coord));
 	
 	return ambient + difuse + specular;
 }

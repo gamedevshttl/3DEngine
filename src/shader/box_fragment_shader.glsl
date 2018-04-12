@@ -24,14 +24,14 @@ vec3 CalcLightDir(DirLight light, vec3 normal, vec3 view_dir)
 {
 	float diff = max(dot(normal, light.direction), 0.0);
 	
-//	vec3 reflect_dir = reflect(-light.direction, normal);
-//	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
+	vec3 reflect_dir = reflect(-light.direction, normal);
+	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
 
 	vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse, TexCoords));
 	vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse, TexCoords));
-//	vec3 specular = light.specular * spec * vec3(texture(material.texture_diffuse, TexCoords));
+	vec3 specular = light.specular * spec * vec3(texture(material.texture_specular, TexCoords));
 	
-	return ambient + diffuse;
+	return ambient + diffuse + specular;
 }
 
 struct PointLight{
@@ -51,13 +51,13 @@ vec3 CalcPoitLight(PointLight light, vec3 normal, vec3 frag_pos, vec3 view_dir)
 	float diff = max(dot(normal, light_dir), 0.0);
 
 	vec3 reflect_dir = reflect(-light_dir, normal);
-	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 32);
+	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), 64);
 
 	vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse, TexCoords));
 	vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse, TexCoords));
-	vec3 specular = light.diffuse * spec * vec3(texture(material.texture_diffuse, TexCoords));
+	vec3 specular = light.diffuse * spec * vec3(texture(material.texture_specular, TexCoords));
 
-	return diffuse + specular;
+	return ambient + diffuse + specular;
 }
 
 uniform vec3 viewPos;

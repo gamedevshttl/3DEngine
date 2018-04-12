@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <memory>
+#include <glm/gtc/matrix_transform.hpp>
 
 void factory_object::parce_scene(const std::string& scene_path)
 {
@@ -126,19 +127,57 @@ void factory_object::parce_scene(const std::string& scene_path)
 			if(m_map_vector_object.find(shader->get_id()) == m_map_vector_object.end())
 				m_map_vector_object[shader->get_id()].m_shader = shader;
 
-			if (quantity > 0) {
-				for (int i = 0; i < quantity; ++i) {
-					std::shared_ptr<object> obj_clone = obj->clone();
-					if (obj_clone) {
-						glm::vec3 local_step;
-						local_step.x = step.x * i;
-						local_step.y = step.y * i;
-						local_step.z = step.z * i;
-						obj_clone->set_position(position + local_step);
-						obj_clone->set_scale(scale);
-						m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
-					}
+			if (quantity > 1) {				
+				//for (int i = 0; i < quantity; ++i) {
+				//	std::shared_ptr<object> obj_clone = obj->clone();
+				//	std::shared_ptr<object> obj_clone1 = obj->clone();
+				//	if (obj_clone) {
+				//		glm::vec3 local_step;
+				//		local_step.x = step.x * i;
+				//		local_step.y = step.y * i;
+				//		local_step.z = step.z * i;
+				//		obj_clone->set_position(position + local_step);
+				//		obj_clone->set_scale(scale);
+				//		m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
+				//	}
+				//}
+
+				{
+					std::vector<glm::mat4> model_matrices_vector;
+					//std::shared_ptr<object> obj_clone = obj->clone();
+					//if (obj_clone) {
+						for (int i = 0; i < quantity; ++i) {
+							glm::vec3 local_step;
+							local_step.x = step.x * i;
+							local_step.y = step.y * i;
+							local_step.z = step.z * i;
+
+							glm::mat4 model = obj->get_model_matrix();
+
+							model = glm::translate(model, position + local_step);
+							model = glm::scale(model, glm::vec3(scale));
+
+							model_matrices_vector.push_back(model);
+
+						}
+						//obj_clone->add_instance_matrix(model_matrices_vector.size(), model_matrices_vector[0]);
+						//obj_clone->add_instance_matrix_vector(model_matrices_vector);
+						
+						auto it_instance_obj = m_map_instance_object.find(path + vertex_shader + fragment_shader);
+						if (it_instance_obj == m_map_instance_object.end()) {
+							std::shared_ptr<object> obj_clone = obj->clone();
+							if (obj_clone) {
+								obj_clone->add_instance_matrix_vector(model_matrices_vector);
+								m_map_instance_object[path + vertex_shader + fragment_shader] = obj_clone;
+								m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
+							}
+						}
+						else {
+							it_instance_obj->second->add_instance_matrix_vector(model_matrices_vector);
+						}
+					//}
 				}
+
 			}
 			else {
 				std::shared_ptr<object> obj_clone = obj->clone();
@@ -150,6 +189,9 @@ void factory_object::parce_scene(const std::string& scene_path)
 			}
 		}
 	}
+
+	for (auto elem : m_map_instance_object)
+		elem.second->post_init();
 }
 
 glm::vec3 factory_object::read_vector(const rapidjson::Value& value, const std::string key)
@@ -178,7 +220,7 @@ std::shared_ptr<object> factory_object::create_object(const std::string& object_
 	else if(object_name.find(".obj") != std::string::npos)
 	{
 		std::shared_ptr<object> obj = std::make_shared<model>();
-		obj->init(object_name, shader);
+		obj->init(object_name, shader, details_obj);
 		return obj;
 	}
 

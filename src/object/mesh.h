@@ -21,6 +21,9 @@ public:
 
 	mesh(const std::vector<vertex>& verteces, const std::vector<GLuint>& indices, const std::vector<texture>& textures);
 	void draw(shader_logic& shader);
+	void draw_instance(GLuint amount, shader_logic& shader);
+
+	GLuint get_VAO();
 
 private:
 	void setup_mesh();

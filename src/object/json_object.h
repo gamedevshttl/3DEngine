@@ -7,10 +7,19 @@
 class json_object: public object
 {
 public:
+	json_object() 
+		: object()
+		, m_instance_amount(0)
+	{}
+
 	virtual ~json_object();
 	virtual void init(const std::string& path, shader_logic& shader, const details_object& details_obj = details_object());
+	virtual void add_instance_matrix(GLuint amount, const glm::mat4& model);
+	virtual void add_instance_matrix_vector(const std::vector<glm::mat4>& matrix_vector);
+	virtual void post_init();
 	virtual void draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos);
 	virtual void draw_cust_model_matrix(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos, const glm::mat4& model);
+	virtual void draw_instance(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos);
 	virtual std::shared_ptr<object> clone();
 
 	void load_texture(texture& texture_item);
@@ -26,6 +35,9 @@ protected:
 	//std::string m_diff_texture_path;
 
 	GLuint m_VAO;
+	GLuint m_instance_amount;
+
+	std::vector<glm::mat4> m_instance_matrix_vector;
 };
 
 #endif

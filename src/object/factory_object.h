@@ -38,6 +38,9 @@ protected:
 	std::map<std::string, shader_map_object> m_map_shader;
 
 	std::map<int, shader_vector_object> m_map_vector_object;
+
+	std::map<std::string, std::shared_ptr<object>> m_map_instance_object;
+
 };
 
 #endif

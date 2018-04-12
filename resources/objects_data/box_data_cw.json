@@ -44,5 +44,6 @@
 		{"p": [-0.5,  0.5,  0.5], "tx":[0.0, 0.0], "n": [0.0,  1.0,  0.0]} ],
 	
 	
-	"texture_diffuse" : "../resources/texture/metal.png"
+	"texture_diffuse" : "../resources/texture/container2.png",
+	"texture_specular" : "../resources/texture/container2_specular.png"
 }

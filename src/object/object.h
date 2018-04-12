@@ -37,9 +37,12 @@ public:
 	{}
 
 	virtual void init(const std::string& path, shader_logic& shader, const details_object& details_obj = details_object()) = 0;
+	virtual void add_instance_matrix_vector(const std::vector<glm::mat4>& matrix_vector) {}
+	virtual void add_instance_matrix(GLuint amount, const glm::mat4& model) {}
 	virtual void set_position(const glm::vec3& position);
 	virtual void set_rotation(float angle, const glm::vec3& vec);
 	virtual void set_scale(float value);
+	virtual void post_init() {};
 
 	virtual void draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos) = 0;
 

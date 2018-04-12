@@ -7,23 +7,126 @@
 
 #include <iostream>
 
+#include "resources_manager.h"
+
 void model::init(const std::string& path, shader_logic& shader, const details_object& details_obj)
 {
 	load_model(path);
 	m_model_matrix = glm::mat4(1.0f);
 
 	set_uniform_data(shader);
+
+	for (const auto& elem : details_obj.m_textures)
+	{
+		texture texture_item = elem;
+
+		auto texture_it = std::find_if(m_textures.begin(), m_textures.end(), [texture_item](const texture& exists_texture) {return exists_texture.m_type == texture_item.m_type; });
+
+		if (texture_it == m_textures.end()) {
+			//if (elem.m_type == "cube_texture_reflect")
+			//	load_cube_texture_reflect(texture_item);
+			//else
+				load_texture(texture_item);
+		}
+	}
 }
 
-//void model::set_position(const glm::vec3& position)
-//{
-//	m_model_matrix = glm::translate(m_model_matrix, position);
-//}
-//
-//void model::set_rotation(float angle, const glm::vec3& vec)
-//{
-//	m_model_matrix = glm::rotate(m_model_matrix, glm::radians(angle), vec);
-//}
+void model::add_instance_matrix(GLuint amount, const glm::mat4& model)
+{
+	m_instance_amount = amount;
+
+	GLuint buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &model[0], GL_STATIC_DRAW);
+
+	for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it)
+	{
+		glBindVertexArray(it->get_VAO());
+
+		GLsizei vec4_size = sizeof(glm::vec4);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)0);
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(vec4_size));
+
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(2 * vec4_size));
+
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(3 * vec4_size));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+}
+
+void model::add_instance_matrix_vector(const std::vector<glm::mat4>& matrix_vector)
+{
+	m_instance_matrix_vector.insert(m_instance_matrix_vector.end(), matrix_vector.begin(), matrix_vector.end());
+}
+
+void model::post_init()
+{
+	if (m_instance_matrix_vector.empty())
+		return;
+
+	m_instance_amount = m_instance_matrix_vector.size();
+
+	GLuint buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, m_instance_matrix_vector.size() * sizeof(glm::mat4), &m_instance_matrix_vector[0][0], GL_STATIC_DRAW);
+
+	for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it)
+	{
+		glBindVertexArray(it->get_VAO());
+
+		GLsizei vec4_size = sizeof(glm::vec4);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)0);
+
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(vec4_size));
+
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(2 * vec4_size));
+
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(3 * vec4_size));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+}
+
+void model::load_texture(texture& texture_item)
+{
+	texture_logic txtr_logic;
+
+	if (!texture_item.m_path.empty()) {
+		auto it_texture = resources_manager::instance().get_texture_map().find(texture_item.m_path);
+		if (it_texture != resources_manager::instance().get_texture_map().end()) {
+			texture_item.m_id = it_texture->second;
+			m_textures.push_back(texture_item);
+		}
+		else {
+			texture_item.m_id = txtr_logic.load_image(texture_item.m_path);
+			m_textures.push_back(texture_item);
+
+			resources_manager::instance().add_texture(texture_item.m_path, texture_item.m_id);
+		}
+	}
+}
 
 void model::draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos)
 {	
@@ -31,23 +134,75 @@ void model::draw(shader_logic& shader, const glm::mat4& projection, const glm::m
 
 	glUniformMatrix4fv(m_model_matrix_id, 1, GL_FALSE, &m_model_matrix[0][0]);
 
-	m_mvp_matrix = projection * view * m_model_matrix;
-	glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
+	for (GLuint i = 0; i<m_textures.size(); ++i) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		shader.set_int("material." + m_textures[i].m_type, i);
+
+		//if (m_textures[i].m_type == "cube_texture_reflect")
+		//	glBindTexture(GL_TEXTURE_CUBE_MAP, m_textures[i].m_id);
+		//else
+		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
+	}
 
 	shader.set_vec3("viewPos", view_pos.x, view_pos.y, view_pos.z);
 
-	for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it)
-		it->draw(shader);
+	if (m_instance_amount == 0) {
+		m_mvp_matrix = projection * view * m_model_matrix;
+		glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
+		for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it)
+			it->draw(shader);
+	}
+	else {
+		m_mvp_matrix = projection * view;
+		glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
+		for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
+			it->draw_instance(m_instance_amount, shader);
+		}
+	}
 }
 
-void model::draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view)
+void model::draw_instance(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos)
 {
 	shader.use();
 
 	glUniformMatrix4fv(m_model_matrix_id, 1, GL_FALSE, &m_model_matrix[0][0]);
+	
+	for (GLuint i = 0; i<m_textures.size(); ++i) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		shader.set_int("material." + m_textures[i].m_type, i);
+		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
+	}
 
-	m_mvp_matrix = projection * view * m_model_matrix;
+	shader.set_vec3("viewPos", view_pos.x, view_pos.y, view_pos.z);
+
+	m_mvp_matrix = projection * view;
 	glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
+
+	for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
+		it->draw_instance(m_instance_amount, shader);
+	}
+}
+
+void model::draw_cust_model_matrix(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos, const glm::mat4& model)
+{
+	shader.use();
+
+	glUniformMatrix4fv(m_model_matrix_id, 1, GL_FALSE, &model[0][0]);
+
+	m_mvp_matrix = projection * view * model;
+	glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
+
+	for (GLuint i = 0; i<m_textures.size(); ++i) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		shader.set_int("material." + m_textures[i].m_type, i);
+
+		//if (m_textures[i].m_type == "cube_texture_reflect")
+		//	glBindTexture(GL_TEXTURE_CUBE_MAP, m_textures[i].m_id);
+		//else
+		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
+	}
+
+	shader.set_vec3("viewPos", view_pos.x, view_pos.y, view_pos.z);
 
 	for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it)
 		it->draw(shader);

@@ -63,28 +63,30 @@ void skybox::init()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 
-	auto it_texture = resources_manager::instance().get_texture_map().find("../resources/texture/skybox/");
+	auto it_texture = resources_manager::instance().get_texture_map().find("../resources/texture/skybox_1/");
 	if (it_texture != resources_manager::instance().get_texture_map().end()) {
 		m_cubemap_texture_id = it_texture->second;
 	}
 	else {
 		std::vector<std::string> faces = {
-			"../resources/texture/skybox/right.jpg",
-			"../resources/texture/skybox/left.jpg",
-			"../resources/texture/skybox/top.jpg",
-			"../resources/texture/skybox/bottom.jpg",
-			"../resources/texture/skybox/front.jpg",
-			"../resources/texture/skybox/back.jpg",
+			"../resources/texture/skybox_1/right.jpg",
+			"../resources/texture/skybox_1/left.jpg",
+			"../resources/texture/skybox_1/top.jpg",
+			"../resources/texture/skybox_1/bottom.jpg",
+			"../resources/texture/skybox_1/front.jpg",
+			"../resources/texture/skybox_1/back.jpg",
 		};
 
 		m_cubemap_texture_id = texture_logic::instance().load_cube_map(faces);
 
-		resources_manager::instance().add_texture("../resources/texture/skybox/", m_cubemap_texture_id);
+		resources_manager::instance().add_texture("../resources/texture/skybox_1/", m_cubemap_texture_id);
 	}
 
 	m_shader.load_shader("../src/shader/1.skybox.vs", "../src/shader/1.skybox.fs");
 	m_shader.use();
-	m_shader.set_int("skybox", 0);
+	//m_shader.set_int("skybox", 0);
+	m_shader.set_int("material.skybox", 0);
+	
 }
 
 void skybox::draw(const glm::mat4& projection, const glm::mat4& view)

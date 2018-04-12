@@ -47,6 +47,12 @@ private:
 
 	post_processing m_post_processing;
 	skybox m_skybox;
+
+	shader_logic m_rock_shader;
+	model m_rock;
+	glm::mat4* m_model_matrices;
+
+	std::vector<glm::mat4> m_model_matrices_vector;
 };
 
 #endif

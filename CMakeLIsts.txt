@@ -52,11 +52,15 @@ set (SOURCES_CODE
 		src/shader/vertex_light_shader.glsl
 		src/shader/box_vertex_shader.glsl
 		src/shader/box_fragment_shader.glsl
+		src/shader/box_vertex_shader_instance.glsl
+		src/shader/box_fragment_shader_instance.glsl
 		src/shader/1.model_loading.fs
 		src/shader/1.model_loading.vs
+		src/shader/1.model_loading_instansing.vs
 		src/shader/border_color.fs
 		src/shader/1.blending.fs
 		src/shader/1.blending.vs
+		src/shader/1.blending_instansing.vs
 		src/shader/1.framebuffers_screen.fs
 		src/shader/1.framebuffers_screen.vs
 		src/shader/5.1.framebuffers.fs
@@ -65,6 +69,9 @@ set (SOURCES_CODE
 		src/shader/1.skybox.vs
 		src/shader/1.reflect_skybox.fs
 		src/shader/1.reflect_skybox.vs
+		src/shader/1.reflect_skybox_instansing.vs
+		src/shader/1.instancing.fs
+		src/shader/1.instancing.vs
 	)
 
 add_executable(main ${SOURCES_CODE})
@@ -80,11 +87,15 @@ source_group(	shaders FILES
 				src/shader/vertex_light_shader.glsl
 				src/shader/box_vertex_shader.glsl
 				src/shader/box_fragment_shader.glsl
+				src/shader/box_vertex_shader_instance.glsl
+				src/shader/box_fragment_shader_instance.glsl
 				src/shader/1.model_loading.fs
 				src/shader/1.model_loading.vs
+				src/shader/1.model_loading_instansing.vs
 				src/shader/border_color.fs
 				src/shader/1.blending.fs
 				src/shader/1.blending.vs
+				src/shader/1.blending_instansing.vs
 				src/shader/1.framebuffers_screen.fs
 				src/shader/1.framebuffers_screen.vs
 				src/shader/5.1.framebuffers.fs
@@ -93,6 +104,9 @@ source_group(	shaders FILES
 				src/shader/1.skybox.vs
 				src/shader/1.reflect_skybox.fs
 				src/shader/1.reflect_skybox.vs
+				src/shader/1.reflect_skybox_instansing.vs
+				src/shader/1.instancing.fs
+				src/shader/1.instancing.vs
 			)
 			
 source_group(	object FILES

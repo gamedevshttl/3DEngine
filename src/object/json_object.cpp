@@ -11,7 +11,7 @@
 
 json_object::~json_object()
 {
-	glDeleteVertexArrays(1, &m_VAO);
+	//glDeleteVertexArrays(1, &m_VAO);
 }
 
 void json_object::init(const std::string& path, shader_logic& shader, const details_object& details_obj)
@@ -140,6 +140,79 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 	m_model_matrix = glm::mat4(1);
 }
 
+void json_object::add_instance_matrix(GLuint amount, const glm::mat4& model)
+{
+	m_instance_amount = amount;
+
+	GLuint buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &model[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(m_VAO);
+
+	GLsizei vec4_size = sizeof(glm::vec4);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)0);
+
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(vec4_size));
+
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(2 * vec4_size));
+
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(3 * vec4_size));
+
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
+	glBindVertexArray(0);
+	
+}
+
+void json_object::add_instance_matrix_vector(const std::vector<glm::mat4>& matrix_vector)
+{	
+	m_instance_matrix_vector.insert(m_instance_matrix_vector.end(), matrix_vector.begin(), matrix_vector.end());
+}
+
+void json_object::post_init()
+{
+	if (m_instance_matrix_vector.empty())
+		return;
+
+	m_instance_amount = m_instance_matrix_vector.size();
+
+	GLuint buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, m_instance_matrix_vector.size() * sizeof(glm::mat4), &m_instance_matrix_vector[0][0], GL_STATIC_DRAW);
+
+	glBindVertexArray(m_VAO);
+
+	GLsizei vec4_size = sizeof(glm::vec4);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)0);
+
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(vec4_size));
+
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(2 * vec4_size));
+
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4_size, (void*)(3 * vec4_size));
+
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+
+	glBindVertexArray(0);
+}
+
 void json_object::load_texture(texture& texture_item)
 {
 	texture_logic txtr_logic;
@@ -187,23 +260,72 @@ void json_object::draw(shader_logic& shader, const glm::mat4& projection, const 
 	shader.use();
 	glUniformMatrix4fv(m_model_matrix_id, 1, GL_FALSE, &m_model_matrix[0][0]);
 
-	m_mvp_matrix = projection * view * m_model_matrix;
-	glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
-
 	for(GLuint i = 0; i<m_textures.size(); ++i){
 		glActiveTexture(GL_TEXTURE0 + i);								
-		shader.set_int("material." + m_textures[i].m_type, 0);
-		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
+		shader.set_int("material." + m_textures[i].m_type, i);
+		
+		if (m_textures[i].m_type == "cube_texture_reflect")
+			glBindTexture(GL_TEXTURE_CUBE_MAP, m_textures[i].m_id);
+		else
+			glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);		
+	}
+
+	shader.set_vec3("viewPos", view_pos.x, view_pos.y, view_pos.z);
+	
+	glBindVertexArray(m_VAO);
+
+	if (m_instance_amount == 0) {
+		m_mvp_matrix = projection * view * m_model_matrix;
+		glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
+
+		if (!m_indices.empty())
+			glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+		else
+			glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+	}
+	else {
+
+		if (m_instance_amount == 20)
+			return;
+
+		m_mvp_matrix = projection * view;
+		glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
+
+		if (!m_indices.empty())
+			glDrawElementsInstanced(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0, m_instance_amount);
+		else
+			glDrawArraysInstanced(GL_TRIANGLES, 0, m_vertices.size(), m_instance_amount);
+	}
+
+	glBindVertexArray(0);
+}
+
+void json_object::draw_instance(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos)
+{
+	shader.use();
+	glUniformMatrix4fv(m_model_matrix_id, 1, GL_FALSE, &m_model_matrix[0][0]);
+
+	m_mvp_matrix = projection * view;
+	glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
+
+	for (GLuint i = 0; i<m_textures.size(); ++i) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		shader.set_int("material." + m_textures[i].m_type, i);
+
+		if (m_textures[i].m_type == "cube_texture_reflect")
+			glBindTexture(GL_TEXTURE_CUBE_MAP, m_textures[i].m_id);
+		else
+			glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
 	}
 
 	shader.set_vec3("viewPos", view_pos.x, view_pos.y, view_pos.z);
 
 	glBindVertexArray(m_VAO);
-	if (!m_indices.empty()) 
-		glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
-	else
-		glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
-		
+	if (!m_indices.empty())		
+		glDrawElementsInstanced(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0, m_instance_amount);
+	else		
+		glDrawArraysInstanced(GL_TRIANGLES, 0, m_vertices.size(), m_instance_amount);
+
 	glBindVertexArray(0);
 }
 
