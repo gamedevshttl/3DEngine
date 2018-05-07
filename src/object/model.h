@@ -21,7 +21,8 @@ public:
 	
 	void load_texture(texture& texture_item);
 
-	virtual void draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos);
+	virtual void draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos, GLuint shadow_map = 0);
+	virtual void draw_shadow(shader_logic& shader);
 	//void draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view);
 	void draw_instance(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos);
 	virtual void draw_cust_model_matrix(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos, const glm::mat4& model);

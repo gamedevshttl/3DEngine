@@ -53,6 +53,19 @@ private:
 	glm::mat4* m_model_matrices;
 
 	std::vector<glm::mat4> m_model_matrices_vector;
+
+	glm::mat4 m_light_view;
+	glm::mat4 m_light_space_matrix;
+
+	shader_logic m_simple_depth_shader;
+	shader_logic m_debug_depth_quad;
+	shader_logic m_shadow_mapping;
+
+	GLuint m_depth_map_FBO;
+	GLuint m_quad_VAO;
+	GLuint m_depth_map;
+	
+	glm::vec3 m_lightPos;
 };
 
 #endif

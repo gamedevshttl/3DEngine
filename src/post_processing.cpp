@@ -80,6 +80,7 @@ void post_processing::draw()
 
 	m_framebuffers_shader.use();
 	glBindVertexArray(m_quadVAO);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture_color_buffer);	// use the color attachment texture as the texture of the quad plane
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }

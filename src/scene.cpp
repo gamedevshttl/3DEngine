@@ -136,7 +136,67 @@ void scene::create_object()
 			m_light.set_uniform_light(*elem.second.m_shader.get());
 	}
 
+	
+	
+	const unsigned int shadow_width = 1024;
+	const unsigned int shadow_height = 1024;
 
+	glGenFramebuffers(1, &m_depth_map_FBO);		
+	glGenTextures(1, &m_depth_map);
+	glBindTexture(GL_TEXTURE_2D, m_depth_map);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,	shadow_width, shadow_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_depth_map_FBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth_map, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	m_lightPos = glm::vec3(-8.0f, 16.0f, -4.0f);
+	//m_lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
+	float near_plane = 1.0f, far_plane = 35.5f;
+	glm::mat4 light_projection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
+	m_light_view = glm::lookAt(m_lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+	m_light_space_matrix = light_projection * m_light_view;
+
+	//m_light_space_matrix = glm::translate(m_light_space_matrix, glm::vec3(-10.0f, 0.0f, 0.0f));
+
+
+	m_simple_depth_shader.load_shader("../src/shader/1.1.shadow_mapping_depth.vs", "../src/shader/1.1.shadow_mapping_depth.fs");
+	m_debug_depth_quad.load_shader("../src/shader/1.1.debug_quad_depth.vs", "../src/shader/1.1.debug_quad_depth.fs");
+	m_debug_depth_quad.use();
+	m_debug_depth_quad.set_int("depthMap", 0);
+
+
+	GLuint quad_VBO;
+
+	float quad_vertices[] = {
+		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+		 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	};
+
+	glGenVertexArrays(1, &m_quad_VAO);
+	glGenBuffers(1, &quad_VBO);
+	glBindVertexArray(m_quad_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quad_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertices), &quad_vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	
 
 	double xpos, ypos;
 	glfwGetCursorPos(m_window, &xpos, &ypos);
@@ -172,14 +232,19 @@ void scene::draw()
 
 		//light_pos = glm::vec3(10.0f * sin(time), 1.0f, 10.0f * cos(time));		
 
-		m_post_processing.pre_draw();
+		//m_post_processing.pre_draw();
+		glEnable(GL_DEPTH_TEST);
 
-		glClearColor(0.75f, 0.52f, 0.3f, 1.0f);
+		//glClearColor(0.75f, 0.52f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		m_camera.render_proces(m_window);
 		view = m_camera.get_view();
+		glm::vec3 view_pos = m_camera.get_pos();
+
+		//view = m_light_view;
 
 		//view = tcamera.GetViewMatrix();
 		//projection = glm::perspective(glm::radians(tcamera.Zoom), (float)scene_SCR_WIDTH / (float)scene_SCR_HEIGHT, 0.1f, 100.0f);
@@ -189,31 +254,63 @@ void scene::draw()
 		//shrd_logic.use();
 		//glUniform4f(vertex_color_location, 0.0f, green_value, 0.0f, 1.0f);		
 		//shrd_logic.set_vec3("point_light_array[4].position", light_pos);
+		
 
-		glm::vec3 view_pos = m_camera.get_pos();
-
+		m_simple_depth_shader.use();
+		m_simple_depth_shader.set_mat4("lightSpaceMatrix", m_light_space_matrix);
+		glViewport(0, 0, 1024, 1024);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_depth_map_FBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+				
 		{			
-			for(const auto& elem : m_light_gebug_object_vector)
-				elem->draw(m_debug_light_shader, projection, view, view_pos);
+			for (const auto& elem : m_light_gebug_object_vector) {				
+				//elem->draw_shadow(m_simple_depth_shader, projection);				
+			}
+		}		
+
+		for (auto &elem_shader : factory.get_map_vector_object())
+			for (auto &object : elem_shader.second.m_vector_object) {		
+				object->draw_shadow(m_simple_depth_shader);				
+			}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+
+		glViewport(0, 0, 1024, 768);
+		m_post_processing.pre_draw();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		{
+			for (const auto& elem : m_light_gebug_object_vector) {
+				elem->draw(m_debug_light_shader, projection, view, view_pos, 0);
+			}
 		}
 
 		//m_skybox.draw(projection, view);
 
 		for (auto &elem_shader : factory.get_map_vector_object())
 			for (auto &object : elem_shader.second.m_vector_object) {
-				object->draw(*elem_shader.second.m_shader.get(), projection, view, view_pos);
+				elem_shader.second.m_shader->use();
+				elem_shader.second.m_shader->set_mat4("lightSpaceMatrix", m_light_space_matrix);
+				object->draw(*elem_shader.second.m_shader.get(), projection, view, view_pos, m_depth_map);
 			}
 
-		//for (unsigned int i = 0; i < 10000; i++)
-		//{			
-		//	m_rock.draw_cust_model_matrix(m_rock_shader, projection, view, view_pos, m_model_matrices[i]);
-		//}
+		m_rock.draw(m_rock_shader, projection, view, view_pos);		
+		m_skybox.draw(projection, view);
 
-		//m_rock.draw_instance(m_rock_shader, projection, view, view_pos);
 
-		m_rock.draw(m_rock_shader, projection, view, view_pos);
+		// //render Depth map to quad for visual debugging
+		//glViewport(0, 0, 1024, 768);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//m_skybox.draw(projection, view);
+		//m_debug_depth_quad.use();
+		//m_debug_depth_quad.set_float("near_plane", 1.0f);
+		//m_debug_depth_quad.set_float("far_plane", 7.5f);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, m_depth_map);
+		//
+		//glBindVertexArray(m_quad_VAO);
+		//glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		//glBindVertexArray(0);
 
 		m_post_processing.draw();
 

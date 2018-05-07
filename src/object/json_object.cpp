@@ -75,6 +75,11 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 			m_indices.push_back(indices[i].GetFloat());
 		}
 	}
+		
+	if (document.HasMember("shadow")) {
+		m_shadow = document["shadow"].GetBool();
+	}
+
 
 	std::vector<std::string> texture_type_vector{ "texture_diffuse" , "texture_specular"};
 
@@ -255,7 +260,7 @@ void json_object::load_cube_texture_reflect(texture& texture_item)
 	}
 }
 
-void json_object::draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos)
+void json_object::draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos, GLuint shadow_map)
 {	
 	shader.use();
 	glUniformMatrix4fv(m_model_matrix_id, 1, GL_FALSE, &m_model_matrix[0][0]);
@@ -269,6 +274,13 @@ void json_object::draw(shader_logic& shader, const glm::mat4& projection, const 
 		else
 			glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);		
 	}
+
+	if (shadow_map) {
+		glActiveTexture(GL_TEXTURE0 + m_textures.size());
+		shader.set_int("shadowMap", m_textures.size());
+		glBindTexture(GL_TEXTURE_2D, shadow_map);
+	}
+
 
 	shader.set_vec3("viewPos", view_pos.x, view_pos.y, view_pos.z);
 	
@@ -285,12 +297,35 @@ void json_object::draw(shader_logic& shader, const glm::mat4& projection, const 
 	}
 	else {
 
-		if (m_instance_amount == 20)
-			return;
-
 		m_mvp_matrix = projection * view;
 		glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
 
+		if (!m_indices.empty())
+			glDrawElementsInstanced(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0, m_instance_amount);
+		else
+			glDrawArraysInstanced(GL_TRIANGLES, 0, m_vertices.size(), m_instance_amount);
+	}
+
+	glBindVertexArray(0);
+}
+
+void json_object::draw_shadow(shader_logic& shader)
+{
+	if (!m_shadow)
+		return;
+
+	shader.use();
+	shader.set_mat4("model", m_model_matrix);
+
+	glBindVertexArray(m_VAO);
+
+	if (m_instance_amount == 0) {
+		if (!m_indices.empty())
+			glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+		else
+			glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+	}
+	else {
 		if (!m_indices.empty())
 			glDrawElementsInstanced(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0, m_instance_amount);
 		else

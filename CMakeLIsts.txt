@@ -54,6 +54,8 @@ set (SOURCES_CODE
 		src/shader/box_fragment_shader.glsl
 		src/shader/box_vertex_shader_instance.glsl
 		src/shader/box_fragment_shader_instance.glsl
+		src/shader/box_vertex_shader_instance_2.glsl
+		src/shader/box_fragment_shader_instance_2.glsl
 		src/shader/1.model_loading.fs
 		src/shader/1.model_loading.vs
 		src/shader/1.model_loading_instansing.vs
@@ -72,6 +74,12 @@ set (SOURCES_CODE
 		src/shader/1.reflect_skybox_instansing.vs
 		src/shader/1.instancing.fs
 		src/shader/1.instancing.vs
+		src/shader/1.1.shadow_mapping_depth.vs
+		src/shader/1.1.shadow_mapping_depth.fs
+		src/shader/1.1.debug_quad_depth.vs
+		src/shader/1.1.debug_quad_depth.fs
+		src/shader/1.1.shadow_mapping.vs
+		src/shader/1.1.shadow_mapping.fs
 	)
 
 add_executable(main ${SOURCES_CODE})
@@ -89,6 +97,8 @@ source_group(	shaders FILES
 				src/shader/box_fragment_shader.glsl
 				src/shader/box_vertex_shader_instance.glsl
 				src/shader/box_fragment_shader_instance.glsl
+				src/shader/box_vertex_shader_instance_2.glsl
+				src/shader/box_fragment_shader_instance_2.glsl
 				src/shader/1.model_loading.fs
 				src/shader/1.model_loading.vs
 				src/shader/1.model_loading_instansing.vs
@@ -107,6 +117,12 @@ source_group(	shaders FILES
 				src/shader/1.reflect_skybox_instansing.vs
 				src/shader/1.instancing.fs
 				src/shader/1.instancing.vs
+				src/shader/1.1.shadow_mapping_depth.vs
+				src/shader/1.1.shadow_mapping_depth.fs
+				src/shader/1.1.debug_quad_depth.vs
+				src/shader/1.1.debug_quad_depth.fs
+				src/shader/1.1.shadow_mapping.vs
+				src/shader/1.1.shadow_mapping.fs
 			)
 			
 source_group(	object FILES

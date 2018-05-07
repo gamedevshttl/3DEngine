@@ -128,7 +128,7 @@ void model::load_texture(texture& texture_item)
 	}
 }
 
-void model::draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos)
+void model::draw(shader_logic& shader, const glm::mat4& projection, const glm::mat4& view, const glm::vec3& view_pos, GLuint shadow_map)
 {	
 	shader.use();
 
@@ -144,6 +144,12 @@ void model::draw(shader_logic& shader, const glm::mat4& projection, const glm::m
 		glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
 	}
 
+	if (m_textures.size() && shadow_map) {
+		glActiveTexture(GL_TEXTURE0 + m_textures.size());
+		shader.set_int("shadowMap", m_textures.size());
+		glBindTexture(GL_TEXTURE_2D, shadow_map);
+	}
+
 	shader.set_vec3("viewPos", view_pos.x, view_pos.y, view_pos.z);
 
 	if (m_instance_amount == 0) {
@@ -155,6 +161,23 @@ void model::draw(shader_logic& shader, const glm::mat4& projection, const glm::m
 	else {
 		m_mvp_matrix = projection * view;
 		glUniformMatrix4fv(m_mvp_matrix_id, 1, GL_FALSE, &m_mvp_matrix[0][0]);
+		for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
+			it->draw_instance(m_instance_amount, shader);
+		}
+	}
+}
+
+void model::draw_shadow(shader_logic& shader)
+{
+	shader.use();
+	//glUniformMatrix4fv(m_model_matrix_id, 1, GL_FALSE, &m_model_matrix[0][0]);
+	shader.set_mat4("model", m_model_matrix);
+
+	if (m_instance_amount == 0) {
+		for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it)
+			it->draw(shader);
+	}
+	else {
 		for (std::vector<mesh>::iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
 			it->draw_instance(m_instance_amount, shader);
 		}

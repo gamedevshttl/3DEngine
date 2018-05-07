@@ -128,64 +128,56 @@ void factory_object::parce_scene(const std::string& scene_path)
 				m_map_vector_object[shader->get_id()].m_shader = shader;
 
 			if (quantity > 1) {				
-				//for (int i = 0; i < quantity; ++i) {
-				//	std::shared_ptr<object> obj_clone = obj->clone();
-				//	std::shared_ptr<object> obj_clone1 = obj->clone();
-				//	if (obj_clone) {
-				//		glm::vec3 local_step;
-				//		local_step.x = step.x * i;
-				//		local_step.y = step.y * i;
-				//		local_step.z = step.z * i;
-				//		obj_clone->set_position(position + local_step);
-				//		obj_clone->set_scale(scale);
-				//		m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
-				//	}
-				//}
+				std::vector<glm::mat4> model_matrices_vector;
+				for (int i = 0; i < quantity; ++i) {
+					glm::vec3 local_step;
+					local_step.x = step.x * i;
+					local_step.y = step.y * i;
+					local_step.z = step.z * i;
 
-				{
-					std::vector<glm::mat4> model_matrices_vector;
-					//std::shared_ptr<object> obj_clone = obj->clone();
-					//if (obj_clone) {
-						for (int i = 0; i < quantity; ++i) {
-							glm::vec3 local_step;
-							local_step.x = step.x * i;
-							local_step.y = step.y * i;
-							local_step.z = step.z * i;
+					glm::mat4 model = obj->get_model_matrix();
 
-							glm::mat4 model = obj->get_model_matrix();
+					model = glm::translate(model, position + local_step);
+					model = glm::scale(model, glm::vec3(scale));
 
-							model = glm::translate(model, position + local_step);
-							model = glm::scale(model, glm::vec3(scale));
+					model_matrices_vector.push_back(model);
 
-							model_matrices_vector.push_back(model);
-
-						}
-						//obj_clone->add_instance_matrix(model_matrices_vector.size(), model_matrices_vector[0]);
-						//obj_clone->add_instance_matrix_vector(model_matrices_vector);
-						
-						auto it_instance_obj = m_map_instance_object.find(path + vertex_shader + fragment_shader);
-						if (it_instance_obj == m_map_instance_object.end()) {
-							std::shared_ptr<object> obj_clone = obj->clone();
-							if (obj_clone) {
-								obj_clone->add_instance_matrix_vector(model_matrices_vector);
-								m_map_instance_object[path + vertex_shader + fragment_shader] = obj_clone;
-								m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
-							}
-						}
-						else {
-							it_instance_obj->second->add_instance_matrix_vector(model_matrices_vector);
-						}
-					//}
 				}
-
+						
+				auto it_instance_obj = m_map_instance_object.find(path + vertex_shader + fragment_shader);
+				if (it_instance_obj == m_map_instance_object.end()) {
+					std::shared_ptr<object> obj_clone = obj->clone();
+					if (obj_clone) {
+						obj_clone->add_instance_matrix_vector(model_matrices_vector);
+						m_map_instance_object[path + vertex_shader + fragment_shader] = obj_clone;
+						m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
+					}
+				}
+				else {
+					it_instance_obj->second->add_instance_matrix_vector(model_matrices_vector);
+				}
 			}
 			else {
-				std::shared_ptr<object> obj_clone = obj->clone();
-				if (obj_clone) {
-					obj_clone->set_position(position);
-					obj_clone->set_scale(scale);
-					m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
+				std::vector<glm::mat4> model_matrices_vector;
+				glm::mat4 model = obj->get_model_matrix();					
+
+				model = glm::translate(model, position);
+				model = glm::scale(model, glm::vec3(scale));
+
+				model_matrices_vector.push_back(model);
+
+				auto it_instance_obj = m_map_instance_object.find(path + vertex_shader + fragment_shader);
+				if (it_instance_obj == m_map_instance_object.end()) {
+					std::shared_ptr<object> obj_clone = obj->clone();
+					if (obj_clone) {
+						obj_clone->add_instance_matrix_vector(model_matrices_vector);
+						m_map_instance_object[path + vertex_shader + fragment_shader] = obj_clone;
+						m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
+					}
 				}
+				else {
+					it_instance_obj->second->add_instance_matrix_vector(model_matrices_vector);
+				}				
 			}
 		}
 	}
