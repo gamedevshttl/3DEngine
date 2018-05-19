@@ -9,6 +9,8 @@
 
 #include "resources_manager.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 json_object::~json_object()
 {
 	//glDeleteVertexArrays(1, &m_VAO);
@@ -75,11 +77,33 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 			m_indices.push_back(indices[i].GetFloat());
 		}
 	}
-		
-	if (document.HasMember("shadow")) {
-		m_shadow = document["shadow"].GetBool();
+	
+	if (document.HasMember("quantity")) {
+		m_quantity = document["quantity"].GetInt();
 	}
 
+	if (document.HasMember("rotation_angle")) {
+		m_rotation_angle = document["rotation_angle"].GetFloat();
+		m_rotation_angle = glm::radians(m_rotation_angle);
+	}
+
+	
+	if (document.HasMember("step")) {
+		const rapidjson::Value& vector_item = document["step"];
+		if (vector_item.Size() == 3) {
+			m_step.x = document["step"][0].GetFloat();
+			m_step.y = document["step"][1].GetFloat();
+			m_step.z = document["step"][2].GetFloat();
+		}
+	}
+
+	if (m_quantity == 1 && details_obj.m_quantity > 1) {
+		m_step = details_obj.m_step;
+		m_quantity = details_obj.m_quantity;
+	}
+
+	//if (m_quantity > 1)
+	//	int i = 0;
 
 	std::vector<std::string> texture_type_vector{ "texture_diffuse" , "texture_specular"};
 
@@ -111,6 +135,7 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 		}
 	}
 
+		
 	glGenVertexArrays(1, &m_VAO);
 
 	GLuint VBO;
@@ -143,6 +168,53 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 	glBindVertexArray(0);
 
 	m_model_matrix = glm::mat4(1);
+}
+
+int json_object::get_quantity() const 
+{
+	return m_quantity;
+}
+
+float json_object::get_rotation_angle() const
+{
+	return m_rotation_angle;
+}
+
+const glm::vec3& json_object::get_step() const
+{
+	return m_step;
+}
+
+void json_object::set_in_space(const glm::vec3& position, float scale, float angle, const details_object& details_obj, std::vector<glm::mat4>& model_matrices_vector)
+{
+	int quantity = m_quantity;
+	glm::vec3 step = m_step;
+
+	if (details_obj.m_quantity) {
+		quantity = details_obj.m_quantity;
+		step = details_obj.m_step;
+	}
+
+	//std::vector<glm::mat4> model_matrices_vector;
+	for (int i = 0; i < quantity; ++i) {
+		glm::mat4 model = get_model_matrix();
+
+		glm::vec3 local_step;
+		local_step.x = step.x * i;
+		local_step.y = step.y * i;
+		local_step.z = step.z * i;
+
+		model = glm::translate(model, position + local_step);
+		model = glm::scale(model, glm::vec3(scale));
+
+		float local_rotation = get_rotation_angle() * i;		
+
+		model = glm::rotate(model, angle + local_rotation, glm::vec3(0.0f, 1.0f, 0.0f));
+	
+		model_matrices_vector.push_back(model);
+	}
+
+	//add_instance_matrix_vector(model_matrices_vector);
 }
 
 void json_object::add_instance_matrix(GLuint amount, const glm::mat4& model)

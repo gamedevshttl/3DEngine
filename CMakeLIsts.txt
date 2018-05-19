@@ -46,6 +46,8 @@ set (SOURCES_CODE
 		src/post_processing.cpp
 		src/skybox.h
 		src/skybox.cpp
+		src/utils/json_utils.h
+		src/utils/json_utils.cpp
 		src/shader/fragment_shader.glsl
 		src/shader/vertex_shader.glsl
 		src/shader/fragment_ligth_shader.glsl
@@ -138,6 +140,11 @@ source_group(	object FILES
 				src/object/factory_object.cpp
 				src/object/resources_manager.h
 				src/object/resources_manager.cpp
+			)
+
+source_group(	utils FILES			
+				src/utils/json_utils.h
+				src/utils/json_utils.cpp
 			)
 
 target_link_libraries(main glfw assimp GLEW_1130 ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} ${CMAKE_DL_LIBS})

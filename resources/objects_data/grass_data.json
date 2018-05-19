@@ -9,5 +9,7 @@
 		{"p": [ 1.0,  0.5,  0.0],	"tx":[1.0, 0.0]} ],
 	
 	"texture_diffuse" : "../resources/texture/grass.png",
-	"shadow": false
+	"quantity": 2,
+	"rotation_angle": 90,
+	"step" : [0.5, 0.0, 0.5]
 }

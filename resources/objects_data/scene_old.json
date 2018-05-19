@@ -1,0 +1,179 @@
+{
+	"object_array" : [
+		{
+			"path" : "../resources/objects_data/box_data_cw.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [-5.0, 0.0, -5.0]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [-10.0, 0.0, 4.0],
+			"quantity": 20,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [1.0, 1.0, 4.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [-5.0, 10.0, -2.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0
+		},
+		{
+			"path" : "../resources/objects_data/plane_data.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [0.0, -1.0, 0.0],
+			"quantity": 1,
+			"step" : [11.0, 0.0, 0.0],
+			"scale": 1.0
+		},
+		{
+			"path" : "../resources/Medieval tower/Medieval tower_mid.obj",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance_2.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance_2.glsl",
+			"position" : [-10.0, -1.0, -1.0],
+			"quantity": 3,
+			"step" : [10.0, 0.0, 0.0],
+			"scale": 0.5,
+			"details":[		
+				{
+					"texture_diffuse":"../resources/Medieval tower/textures/Medieval tower_Vert.jpg",
+					"texture_specular":"../resources/Medieval tower/textures/Medieval tower_mid_me.jpg",
+					"texture_reflect":"",
+					"cube_texture_reflect":""
+				}
+			]
+		},
+		{
+			"path" : "../resources/objects_data/transparent_plane_data.json",
+			"vertex_shader" : "../src/shader/1.blending_instansing.vs",
+			"fragment_shader" : "../src/shader/1.blending.fs",			
+			"position" : [-5.0, 0.0, 5.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0,
+			"details":[
+				{
+					"shadow": true
+				}
+			]
+
+		},
+		{
+			"path" : "../resources/objects_data/grass_data.json",
+			"vertex_shader" : "../src/shader/1.blending_instansing.vs",
+			"fragment_shader" : "../src/shader/1.blending.fs",			
+			"position" : [-5.0, -0.5, 2.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0,
+			"details":[
+				{
+					"shadow": true
+				}
+			]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw_empty.json",
+			"vertex_shader" : "../src/shader/1.reflect_skybox_instansing.vs",
+			"fragment_shader" : "../src/shader/1.reflect_skybox.fs",
+			"position" : [10.0, 10.0, 4.0],
+			"quantity": 10,
+			"step" : [2.0, 0.0, 0.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":"../resources/texture/skybox/"
+				}
+			]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw_vertical_repeat.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [5.0, -0.5, 10.0],
+			"quantity": 5,
+			"step" : [4.0, 0.0, 0.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"../resources/texture/marble.jpg",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":""
+				}
+			]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw_vertical_repeat.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [-24.0, -0.5, 10.0],
+			"quantity": 5,
+			"step" : [4.0, 0.0, 0.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"../resources/texture/marble.jpg",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":""
+				}
+			]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw_horizont_repeat.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [-6.0, -0.5, 15.0],
+			"quantity": 5,
+			"step" : [0.0, 1.0, -1.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"../resources/texture/marble.jpg",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":""
+				}
+			]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw_horizont_repeat.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [-6.0, 4.5, 10.0],
+			"quantity": 10,
+			"step" : [0.0, 0.0, -1.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"../resources/texture/marble.jpg",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":""
+				}
+			]
+		}
+
+		
+	]
+}

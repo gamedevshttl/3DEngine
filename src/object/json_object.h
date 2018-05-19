@@ -11,6 +11,8 @@ public:
 		: object()
 		, m_instance_amount(0)
 		, m_shadow(true)
+		, m_quantity(1)
+		, m_rotation_angle(0)
 	{}
 
 	virtual ~json_object();
@@ -27,6 +29,12 @@ public:
 	void load_texture(texture& texture_item);
 	void load_cube_texture_reflect(texture& texture_item);
 
+	virtual int get_quantity() const;
+	virtual float get_rotation_angle() const;
+	virtual const glm::vec3& get_step() const;
+
+	virtual void set_in_space(const glm::vec3& position, float scale, float angle, const details_object& details_obj,  std::vector<glm::mat4>& model_matrices_vector);
+
 protected:
 	std::string load_file(const std::string& path);
 
@@ -40,6 +48,10 @@ protected:
 	GLuint m_instance_amount;
 
 	std::vector<glm::mat4> m_instance_matrix_vector;
+
+	int m_quantity;
+	float m_rotation_angle;
+	glm::vec3 m_step;
 };
 
 #endif

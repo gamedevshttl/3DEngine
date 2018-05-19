@@ -8,7 +8,7 @@ camera::camera()
 	//, m_last_x(pos_x)
 	//, m_last_y(pos_y)
 	, m_front(glm::vec3(0, 0, -1))
-	, m_pos(glm::vec3(0, 0, 30))
+	, m_pos(glm::vec3(30, 30, -30))
 	, m_delta_time(0.0f)
 	, m_last_frame(0.0f)
 {

@@ -26,7 +26,14 @@ struct texture
 
 struct details_object
 {
+	details_object() 
+		: m_step(glm::vec3(0.0f))
+		, m_quantity(0)
+	{}
+
 	std::vector<texture> m_textures;
+	glm::vec3 m_step;
+	int m_quantity;
 };
 
 class object: public std::enable_shared_from_this<object>
@@ -57,6 +64,12 @@ public:
 	virtual std::shared_ptr<object> clone() = 0;
 	
 	const glm::mat4& get_model_matrix() { return m_model_matrix; }
+
+	virtual int get_quantity() const { return 1; }
+	virtual float get_rotation_angle() const { return 0; }
+	virtual const glm::vec3& get_step() const { return glm::vec3(0.0f); }
+
+	virtual void set_in_space(const glm::vec3& position, float scale, float angle, const details_object& details_obj,  std::vector<glm::mat4>& model_matrices_vector) {}
 
 protected:
 	GLuint m_model_matrix_id;

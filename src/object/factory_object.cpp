@@ -53,18 +53,27 @@ void factory_object::parce_scene(const std::string& scene_path)
 			scale = object_array[i]["scale"].GetFloat();
 		}
 
-		int quantity = 0;
+		int quantity = 1;
 		if (object_array[i].HasMember("quantity")) {
 			quantity = object_array[i]["quantity"].GetInt();
 		}
 
 		glm::vec3 step = read_vector(object_array[i], "step");
+
+		float rotation_angle = 0;
+		if (object_array[i].HasMember("rotation_angle")) {
+			rotation_angle = object_array[i]["rotation_angle"].GetFloat();
+		}
 		
+		bool shadow = false;
 		details_object details_obj;
 		if (object_array[i].HasMember("details")) {
 			const rapidjson::Value& details_value = object_array[i]["details"];
 
-			std::vector<std::string> texture_type_vector{ "texture_diffuse", "texture_specular", "texture_reflect", "cube_texture_reflect" };
+			std::vector<std::string> texture_type_vector{ "texture_diffuse", 
+														  "texture_specular", 
+														  "texture_reflect",														  
+														  "cube_texture_reflect" };
 
 			for (rapidjson::SizeType j = 0; j < details_value.Size(); ++j) {
 
@@ -78,6 +87,18 @@ void factory_object::parce_scene(const std::string& scene_path)
 							details_obj.m_textures.push_back(texture_item);
 						}
 					}
+				}
+
+				if (details_value[j].HasMember("shadow")) {
+					shadow = details_value[j]["shadow"].GetBool();
+				}
+
+				if (details_value[j].HasMember("step")) {
+					details_obj.m_step = read_vector(details_value[j], "step");
+				}
+
+				if (details_value[j].HasMember("quantity")) {
+					details_obj.m_quantity = details_value[j]["quantity"].GetInt();
 				}
 			}
 		}
@@ -123,61 +144,48 @@ void factory_object::parce_scene(const std::string& scene_path)
 				obj = it_obj->second;
 		}
 
-		if (obj) {			
-			if(m_map_vector_object.find(shader->get_id()) == m_map_vector_object.end())
-				m_map_vector_object[shader->get_id()].m_shader = shader;
+		if (obj) {
+			if (shadow) {
+				if (m_map_vector_object_wo_shadow.find(shader->get_id()) == m_map_vector_object_wo_shadow.end())
+					m_map_vector_object_wo_shadow[shader->get_id()].m_shader = shader;
+			}
+			else
+			{
+				if (m_map_vector_object.find(shader->get_id()) == m_map_vector_object.end())
+					m_map_vector_object[shader->get_id()].m_shader = shader;
+			}
 
-			if (quantity > 1) {				
-				std::vector<glm::mat4> model_matrices_vector;
-				for (int i = 0; i < quantity; ++i) {
-					glm::vec3 local_step;
-					local_step.x = step.x * i;
-					local_step.y = step.y * i;
-					local_step.z = step.z * i;
+			std::vector<glm::mat4> model_matrices_vector;
+			for (int i = 0; i < quantity; ++i) {
+				glm::vec3 local_step;
+				local_step.x = step.x * i;
+				local_step.y = step.y * i;
+				local_step.z = step.z * i;
+				
+				glm::mat4 model = obj->get_model_matrix();
 
-					glm::mat4 model = obj->get_model_matrix();
+				model = glm::translate(model, position + local_step);
+				model = glm::scale(model, glm::vec3(scale));
+				model = glm::rotate(model, rotation_angle, glm::vec3(0.0f, 1.0f, 0.0f));
 
-					model = glm::translate(model, position + local_step);
-					model = glm::scale(model, glm::vec3(scale));
-
-					model_matrices_vector.push_back(model);
-
-				}
+				obj->set_in_space(position + local_step, scale, glm::radians(rotation_angle), details_obj, model_matrices_vector);
+			}
 						
-				auto it_instance_obj = m_map_instance_object.find(path + vertex_shader + fragment_shader);
-				if (it_instance_obj == m_map_instance_object.end()) {
-					std::shared_ptr<object> obj_clone = obj->clone();
-					if (obj_clone) {
-						obj_clone->add_instance_matrix_vector(model_matrices_vector);
-						m_map_instance_object[path + vertex_shader + fragment_shader] = obj_clone;
+			auto it_instance_obj = m_map_instance_object.find(path + vertex_shader + fragment_shader);
+			if (it_instance_obj == m_map_instance_object.end()) {
+				std::shared_ptr<object> obj_clone = obj->clone();
+				if (obj_clone) {
+					obj_clone->add_instance_matrix_vector(model_matrices_vector);
+					m_map_instance_object[path + vertex_shader + fragment_shader] = obj_clone;
+
+					if(shadow)
+						m_map_vector_object_wo_shadow[shader->get_id()].m_vector_object.push_back(obj_clone);
+					else
 						m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
-					}
-				}
-				else {
-					it_instance_obj->second->add_instance_matrix_vector(model_matrices_vector);
 				}
 			}
 			else {
-				std::vector<glm::mat4> model_matrices_vector;
-				glm::mat4 model = obj->get_model_matrix();					
-
-				model = glm::translate(model, position);
-				model = glm::scale(model, glm::vec3(scale));
-
-				model_matrices_vector.push_back(model);
-
-				auto it_instance_obj = m_map_instance_object.find(path + vertex_shader + fragment_shader);
-				if (it_instance_obj == m_map_instance_object.end()) {
-					std::shared_ptr<object> obj_clone = obj->clone();
-					if (obj_clone) {
-						obj_clone->add_instance_matrix_vector(model_matrices_vector);
-						m_map_instance_object[path + vertex_shader + fragment_shader] = obj_clone;
-						m_map_vector_object[shader->get_id()].m_vector_object.push_back(obj_clone);
-					}
-				}
-				else {
-					it_instance_obj->second->add_instance_matrix_vector(model_matrices_vector);
-				}				
+				it_instance_obj->second->add_instance_matrix_vector(model_matrices_vector);
 			}
 		}
 	}
@@ -222,4 +230,9 @@ std::shared_ptr<object> factory_object::create_object(const std::string& object_
 std::map<int, shader_vector_object>& factory_object::get_map_vector_object()
 {
 	return m_map_vector_object;
+}
+
+std::map<int, shader_vector_object>& factory_object::get_map_vector_object_wo_shadow()
+{
+	return m_map_vector_object_wo_shadow;
 }

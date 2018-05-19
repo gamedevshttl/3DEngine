@@ -19,10 +19,11 @@ public:
 
 	void parce_scene(const std::string& scene_path);
 	glm::vec3 read_vector(const rapidjson::Value& value, const std::string key);
-//protected:
+
 	std::shared_ptr<object> create_object(const std::string& object_name, shader_logic& shader, const details_object& details_obj = details_object());
 
 	std::map<int, shader_vector_object>& get_map_vector_object();
+	std::map<int, shader_vector_object>& get_map_vector_object_wo_shadow();
 
 protected:
 	std::vector<std::shared_ptr<object>> m_vector_object;
@@ -38,9 +39,9 @@ protected:
 	std::map<std::string, shader_map_object> m_map_shader;
 
 	std::map<int, shader_vector_object> m_map_vector_object;
+	std::map<int, shader_vector_object> m_map_vector_object_wo_shadow;
 
 	std::map<std::string, std::shared_ptr<object>> m_map_instance_object;
-
 };
 
 #endif

@@ -206,7 +206,7 @@ void scene::create_object()
 	view = m_camera.get_view();	
 	
 	glEnable(GL_CULL_FACE);	
-	//glFrontFace(GL_CCW);
+	glFrontFace(GL_CCW);
 
 	m_post_processing.init();
 	m_skybox.init();
@@ -294,7 +294,14 @@ void scene::draw()
 				object->draw(*elem_shader.second.m_shader.get(), projection, view, view_pos, m_depth_map);
 			}
 
-		m_rock.draw(m_rock_shader, projection, view, view_pos);		
+		glDisable(GL_CULL_FACE);
+		for (auto &elem_shader : factory.get_map_vector_object_wo_shadow())
+			for (auto &object : elem_shader.second.m_vector_object) {
+				object->draw(*elem_shader.second.m_shader.get(), projection, view, view_pos);
+			}
+		glEnable(GL_CULL_FACE);
+
+		//m_rock.draw(m_rock_shader, projection, view, view_pos);		
 		m_skybox.draw(projection, view);
 
 

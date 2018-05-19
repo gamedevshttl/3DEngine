@@ -9,6 +9,5 @@
 		{"p": [ 1.0,  0.5,  0.0],	"tx":[1.0, 0.0]} ],
 
 
-	"texture_diffuse" : "../resources/texture/blending_transparent_window.png",
-	"shadow": false
+	"texture_diffuse" : "../resources/texture/blending_transparent_window.png"	
 }
