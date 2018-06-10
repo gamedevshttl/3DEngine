@@ -72,7 +72,8 @@ void factory_object::parce_scene(const std::string& scene_path)
 
 			std::vector<std::string> texture_type_vector{ "texture_diffuse", 
 														  "texture_specular", 
-														  "texture_reflect",														  
+														  "texture_reflect",
+														  "texture_normal_mapping",
 														  "cube_texture_reflect" };
 
 			for (rapidjson::SizeType j = 0; j < details_value.Size(); ++j) {
@@ -82,6 +83,10 @@ void factory_object::parce_scene(const std::string& scene_path)
 					if (details_value[j].HasMember(elem.c_str())) {
 						texture texture_item;
 						texture_item.m_path = details_value[j][elem.c_str()].GetString();
+
+						if (texture_item.m_path == "../resources/texture/brickwall.jpg")
+							int i = 0;
+
 						if (!texture_item.m_path.empty()) {
 							texture_item.m_type = elem;
 							details_obj.m_textures.push_back(texture_item);
@@ -103,7 +108,7 @@ void factory_object::parce_scene(const std::string& scene_path)
 			}
 		}
 		
-
+		std::string obj_key;
 		std::shared_ptr<object> obj;
 		std::shared_ptr<shader_logic> shader;
 
@@ -118,7 +123,7 @@ void factory_object::parce_scene(const std::string& scene_path)
 				obj = create_object(path, *it_local_shader.first->second.m_shader.get(), details_obj);
 
 			if (obj) {
-				std::string obj_key;
+				//std::string obj_key;
 				obj_key = path;
 				for (const auto& elem : details_obj.m_textures)
 					obj_key += elem.m_path;
@@ -129,7 +134,7 @@ void factory_object::parce_scene(const std::string& scene_path)
 		else {
 			shader = it_shader->second.m_shader;
 
-			std::string obj_key;
+			//std::string obj_key;
 			obj_key = path;
 			for (const auto& elem : details_obj.m_textures)
 				obj_key += elem.m_path;
@@ -171,12 +176,12 @@ void factory_object::parce_scene(const std::string& scene_path)
 				obj->set_in_space(position + local_step, scale, glm::radians(rotation_angle), details_obj, model_matrices_vector);
 			}
 						
-			auto it_instance_obj = m_map_instance_object.find(path + vertex_shader + fragment_shader);
+			auto it_instance_obj = m_map_instance_object.find(obj_key + vertex_shader + fragment_shader);
 			if (it_instance_obj == m_map_instance_object.end()) {
 				std::shared_ptr<object> obj_clone = obj->clone();
 				if (obj_clone) {
 					obj_clone->add_instance_matrix_vector(model_matrices_vector);
-					m_map_instance_object[path + vertex_shader + fragment_shader] = obj_clone;
+					m_map_instance_object[obj_key + vertex_shader + fragment_shader] = obj_clone;
 
 					if(shadow)
 						m_map_vector_object_wo_shadow[shader->get_id()].m_vector_object.push_back(obj_clone);

@@ -18,6 +18,8 @@
 const unsigned int scene_SCR_WIDTH = 1024;
 const unsigned int scene_SCR_HEIGHT = 768;
 //
+const unsigned int shadow_width = 2048;
+const unsigned int shadow_height = 2048;
 
 void scene::mouse_callback(double xpos, double ypos)
 {
@@ -138,8 +140,6 @@ void scene::create_object()
 
 	
 	
-	const unsigned int shadow_width = 1024;
-	const unsigned int shadow_height = 1024;
 
 	glGenFramebuffers(1, &m_depth_map_FBO);		
 	glGenTextures(1, &m_depth_map);
@@ -159,10 +159,10 @@ void scene::create_object()
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	m_lightPos = glm::vec3(-8.0f, 16.0f, -4.0f);
+	m_lightPos = glm::vec3(-32.0f, 64.0f, -16.0f);
 	//m_lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
-	float near_plane = 1.0f, far_plane = 35.5f;
-	glm::mat4 light_projection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
+	float near_plane = 1.0f, far_plane = 110.5f;
+	glm::mat4 light_projection = glm::ortho(-90.0f, 40.0f, -90.0f, 40.0f, near_plane, far_plane);
 	m_light_view = glm::lookAt(m_lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 	m_light_space_matrix = light_projection * m_light_view;
 
@@ -258,7 +258,7 @@ void scene::draw()
 
 		m_simple_depth_shader.use();
 		m_simple_depth_shader.set_mat4("lightSpaceMatrix", m_light_space_matrix);
-		glViewport(0, 0, 1024, 1024);
+		glViewport(0, 0, shadow_width, shadow_height);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_depth_map_FBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 				
@@ -285,7 +285,7 @@ void scene::draw()
 			}
 		}
 
-		//m_skybox.draw(projection, view);
+		m_skybox.draw(projection, view);
 
 		for (auto &elem_shader : factory.get_map_vector_object())
 			for (auto &object : elem_shader.second.m_vector_object) {
@@ -301,10 +301,7 @@ void scene::draw()
 			}
 		glEnable(GL_CULL_FACE);
 
-		//m_rock.draw(m_rock_shader, projection, view, view_pos);		
-		m_skybox.draw(projection, view);
-
-
+		
 		// //render Depth map to quad for visual debugging
 		//glViewport(0, 0, 1024, 768);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

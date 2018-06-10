@@ -1837,6 +1837,77 @@
 					"step" : [-1.0, 0.0, 0.0]
 				}
 			]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw_empty.json",
+			"vertex_shader" : "../src/shader/normal_mapping_shader_instance.vs",
+			"fragment_shader" : "../src/shader/normal_mapping_shader_instance.fs",
+			"position" : [3.0, 10.5, -46.0],
+			"quantity": 5,
+			"step" : [0.0, 1.0, 0.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"../resources/texture/brickwall.jpg",
+					"texture_normal_mapping":"../resources/texture/brickwall_normal.jpg",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":""				
+				}
+			]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw_empty.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [0.0, 10.5, -46.0],
+			"quantity": 5,
+			"step" : [0.0, 1.0, 0.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"../resources/texture/brickwall.jpg",
+					"texture_normal_mapping":"",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":""				
+				}
+			]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw_empty.json",
+			"vertex_shader" : "../src/shader/box_vertex_shader_instance.glsl",
+			"fragment_shader" : "../src/shader/box_fragment_shader_instance.glsl",
+			"position" : [-3.0, 10.5, -46.0],
+			"quantity": 5,
+			"step" : [0.0, 1.0, 0.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"../resources/texture/marble.jpg",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":""
+				}
+			]
+		},
+		{
+			"path" : "../resources/objects_data/box_data_cw_empty.json",
+			"vertex_shader" : "../src/shader/normal_mapping_shader_instance.vs",
+			"fragment_shader" : "../src/shader/normal_mapping_shader_instance.fs",
+			"position" : [4.0, 0.5, -6.0],
+			"quantity": 15,
+			"step" : [-1.0, 0.0, 0.0],
+			"scale": 1.0,
+			"details":[		
+				{
+					"texture_diffuse":"../resources/texture/brickwall.jpg",
+					"texture_normal_mapping":"../resources/texture/brickwall_normal.jpg",
+					"texture_specular":"",
+					"texture_reflect":"",
+					"cube_texture_reflect":""				
+				}
+			]
 		}
 	]
 }

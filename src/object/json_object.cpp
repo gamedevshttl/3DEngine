@@ -102,9 +102,6 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 		m_quantity = details_obj.m_quantity;
 	}
 
-	//if (m_quantity > 1)
-	//	int i = 0;
-
 	std::vector<std::string> texture_type_vector{ "texture_diffuse" , "texture_specular"};
 
 	for (const auto& elem : texture_type_vector)
@@ -121,6 +118,9 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 		}
 	}
 	
+
+	std::vector<normal_mapping_data> normal_mapping_data_vetor;
+
 	for (const auto& elem : details_obj.m_textures)
 	{
 		texture texture_item = elem;
@@ -130,12 +130,44 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 		if (texture_it == m_textures.end()) {
 			if (elem.m_type == "cube_texture_reflect")
 				load_cube_texture_reflect(texture_item);
+			else if (elem.m_type == "texture_normal_mapping") {
+
+				load_texture(texture_item);
+
+				for (int i = 0; i < m_vertices.size(); i+=3) {
+					glm::vec3 edge1 = m_vertices[i + 1].m_position - m_vertices[i].m_position;
+					glm::vec3 edge2 = m_vertices[i + 2].m_position - m_vertices[i].m_position;
+					glm::vec2 deltaUV1 = m_vertices[i + 1].m_tex_coords - m_vertices[i].m_tex_coords;
+					glm::vec2 deltaUV2 = m_vertices[i + 2].m_tex_coords - m_vertices[i].m_tex_coords;
+
+					GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+					glm::vec3 tangent1, bitangent1;
+
+					tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+					tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+					tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+					tangent1 = glm::normalize(tangent1);
+
+					bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+					bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+					bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+					bitangent1 = glm::normalize(bitangent1);
+
+					normal_mapping_data normal_mapping_item;
+					normal_mapping_item.m_tangent = tangent1;
+					normal_mapping_item.m_bitangent = bitangent1;
+
+					normal_mapping_data_vetor.push_back(normal_mapping_item);
+					normal_mapping_data_vetor.push_back(normal_mapping_item);
+					normal_mapping_data_vetor.push_back(normal_mapping_item);
+				}
+			}
 			else
 				load_texture(texture_item);
 		}
 	}
-
-		
+	
 	glGenVertexArrays(1, &m_VAO);
 
 	GLuint VBO;
@@ -150,7 +182,7 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 		GLuint EBO;
 		glGenBuffers(1, &EBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(GLuint), &m_indices[0], GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(vertex), &m_indices[0], GL_STATIC_DRAW);
 	}
 
 	glEnableVertexAttribArray(0);
@@ -166,6 +198,25 @@ void json_object::init(const std::string& path, shader_logic& shader, const deta
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+
+	if (normal_mapping_data_vetor.size()) {
+		GLuint buffer;
+		glGenBuffers(1, &buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glBufferData(GL_ARRAY_BUFFER, normal_mapping_data_vetor.size() * sizeof(normal_mapping_data), &normal_mapping_data_vetor[0], GL_STATIC_DRAW);
+
+		glBindVertexArray(m_VAO);
+
+		glEnableVertexAttribArray(7);
+		glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, sizeof(normal_mapping_data), (void*)0);
+
+		glEnableVertexAttribArray(8);
+		glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, sizeof(normal_mapping_data), (void*)offsetof(normal_mapping_data, m_bitangent));
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
 
 	m_model_matrix = glm::mat4(1);
 }
@@ -338,11 +389,15 @@ void json_object::draw(shader_logic& shader, const glm::mat4& projection, const 
 	glUniformMatrix4fv(m_model_matrix_id, 1, GL_FALSE, &m_model_matrix[0][0]);
 
 	for(GLuint i = 0; i<m_textures.size(); ++i){
+
 		glActiveTexture(GL_TEXTURE0 + i);								
 		shader.set_int("material." + m_textures[i].m_type, i);
 		
 		if (m_textures[i].m_type == "cube_texture_reflect")
 			glBindTexture(GL_TEXTURE_CUBE_MAP, m_textures[i].m_id);
+		else if (m_textures[i].m_type == "texture_normal_mapping") {		
+			glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);
+		}
 		else
 			glBindTexture(GL_TEXTURE_2D, m_textures[i].m_id);		
 	}

@@ -17,6 +17,23 @@ struct vertex
 	glm::vec2 m_tex_coords;
 };
 
+struct normal_mapping_data
+{
+	glm::vec3 m_tangent;
+	glm::vec3 m_bitangent;	
+};
+
+struct vertex_normal_vector
+{
+	glm::vec3 m_position;
+	glm::vec3 m_normal;
+	glm::vec2 m_tex_coords;
+	glm::vec3 m_tangent;
+	glm::vec3 m_bitangent;
+};
+
+
+
 struct texture
 {
 	GLuint m_id;

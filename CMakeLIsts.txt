@@ -82,6 +82,12 @@ set (SOURCES_CODE
 		src/shader/1.1.debug_quad_depth.fs
 		src/shader/1.1.shadow_mapping.vs
 		src/shader/1.1.shadow_mapping.fs
+		src/shader/normal_mapping_shader_instance.fs
+		src/shader/normal_mapping_shader_instance.vs
+		src/shader/4.normal_mapping.vs
+		src/shader/4.normal_mapping.fs
+		src/shader/4.inst_normal_mapping.vs
+		src/shader/4.inst_normal_mapping.fs
 	)
 
 add_executable(main ${SOURCES_CODE})
@@ -125,6 +131,12 @@ source_group(	shaders FILES
 				src/shader/1.1.debug_quad_depth.fs
 				src/shader/1.1.shadow_mapping.vs
 				src/shader/1.1.shadow_mapping.fs
+				src/shader/normal_mapping_shader_instance.fs
+				src/shader/normal_mapping_shader_instance.vs
+				src/shader/4.normal_mapping.vs
+				src/shader/4.normal_mapping.fs
+				src/shader/4.inst_normal_mapping.vs
+				src/shader/4.inst_normal_mapping.fs
 			)
 			
 source_group(	object FILES
